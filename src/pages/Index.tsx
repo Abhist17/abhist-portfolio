@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, Briefcase, GraduationCap, FileText, Folder, User, Layers, Twitter } from "lucide-react";
+import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, Briefcase, GraduationCap, FileText, Folder, User, Layers, Twitter, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -50,28 +50,28 @@ const CONTENT = {
       description: "A solution-focused platform aimed at solving real-world challenges using tech-driven systems.",
       link: "https://github.com/Abhist17/sadak-sathi-",
       icon: Zap,
-      tags: ["HTML", "CSS", "JavaScript","Python"],
+      tags: ["HTML", "CSS", "JavaScript","Python","Completed"],
     },
     {
       title: "Web3 Todo App",
       description: "A decentralized blockchain-based Todo application ensuring transparency and immutability.",
       link: "https://github.com/Abhist17/todo-web3",
       icon: Sparkles,
-      tags: ["HTML", "CSS", "JavaScript","Solidity"],
+      tags: ["HTML", "CSS", "JavaScript","Solidity", "Partially-Completed"],
     },
     {
       title: "Trade Journal",
       description: "A trading activity tracker designed to analyze performance and improve trading discipline.",
       link: "https://github.com/Abhist17/trade-journal",
       icon: Layers,
-      tags: ["TypeScript", "JavaScript",],
+      tags: ["TypeScript", "JavaScript","Work in Progress"],
     },
     {
       title: "JD–CV Matching AI",
       description: "An AI-powered system that intelligently matches resumes to job descriptions using embeddings.",
       link: "https://github.com/Abhist17/JD-CV-Matching",
       icon: Code2,
-      tags: ["TypeScript", "Python", "Python Dependencies"],
+      tags: ["TypeScript", "Python", "Python Dependencies", "Completed"],
     },
   ],
    experience: [
@@ -375,6 +375,7 @@ const FloatingOrbs = () => (
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -407,18 +408,19 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <motion.a
             href="#"
-            className="text-xl font-bold text-foreground hover:text-primary transition-colors"
+            className="text-4xl font-bold text-foreground hover:text-primary transition-colors"
             whileHover={{ scale: 1.05 }}
           >
             AK
           </motion.a>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:text-primary ${
+                className={`relative px-4 py-2 text-xl font-medium transition-colors rounded-lg hover:text-primary ${
                   activeSection === item.href.slice(1)
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -436,17 +438,66 @@ const Navbar = () => {
             ))}
           </div>
 
+          {/* Desktop Resume Button */}
           <motion.a
             href={CONTENT.resumeLink}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="hidden md:flex items-center gap-2 px-4 py-2 text-xl font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Resume</span>
           </motion.a>
+
+          {/* Mobile Hamburger */}
+          <button
+            className="md:hidden text-foreground hover:text-primary transition-colors"
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden overflow-hidden bg-background/95 backdrop-blur-md border-t border-border"
+          >
+            <div className="container mx-auto px-6 py-4">
+              <div className="flex flex-col gap-2">
+                {NAV_ITEMS.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`py-3 text-xl font-medium text-muted-foreground hover:text-primary transition-colors ${
+                      activeSection === item.href.slice(1) ? "text-primary" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+                <motion.a
+                  href={CONTENT.resumeLink}
+                  onClick={() => setIsMobileOpen(false)}
+                  className="flex items-center gap-2 py-3 text-xl font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FileText className="w-4 h-4" />
+                  Resume
+                </motion.a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };
@@ -507,7 +558,7 @@ const Hero = () => {
         >
           <motion.a
             href="#projects"
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-all text-xl"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -516,7 +567,7 @@ const Hero = () => {
           </motion.a>
           <motion.a
             href="#experience"
-            className="flex items-center gap-2 px-6 py-3 border border-border bg-card/50 backdrop-blur-sm text-foreground rounded-xl font-medium hover:border-primary/50 hover:bg-card transition-all"
+            className="flex items-center gap-2 px-6 py-3 border border-border bg-card/50 backdrop-blur-sm text-foreground rounded-xl font-medium hover:border-primary/50 hover:bg-card transition-all text-xl"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -525,7 +576,7 @@ const Hero = () => {
           </motion.a>
           <motion.a
             href={CONTENT.resumeLink}
-            className="flex items-center gap-2 px-6 py-3 border border-border bg-card/50 backdrop-blur-sm text-foreground rounded-xl font-medium hover:border-primary/50 hover:bg-card transition-all"
+            className="flex items-center gap-2 px-6 py-3 border border-border bg-card/50 backdrop-blur-sm text-foreground rounded-xl font-medium hover:border-primary/50 hover:bg-card transition-all text-xl"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -542,7 +593,7 @@ const Hero = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
       >
-        <span className="text-sm tracking-widest uppercase">Scroll</span>
+        <span className="text-xl tracking-widest uppercase">Scroll</span>
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
           <ArrowDown className="w-4 h-4" />
         </motion.div>
@@ -561,7 +612,7 @@ const About = () => (
       <ScrollReveal>
         <div className="flex items-center gap-3 mb-12">
           <div className="h-px flex-1 max-w-12 bg-gradient-to-r from-transparent to-primary" />
-          <h2 className="text-sm font-medium text-primary tracking-widest uppercase">About Me</h2>
+          <h2 className="text-xl font-medium text-primary tracking-widest uppercase">About Me</h2>
           <div className="h-px flex-1 max-w-12 bg-gradient-to-l from-transparent to-primary" />
         </div>
       </ScrollReveal>
@@ -574,9 +625,9 @@ const About = () => (
               <div className="p-2 rounded-lg bg-primary/10">
                 <User className="w-5 h-5 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Who I Am</h3>
+              <h3 className="text-3xl font-semibold text-foreground">Who I Am</h3>
             </div>
-            <p className="text-muted-foreground leading-relaxed">{CONTENT.bio.whoAmI}</p>
+            <p className="text-muted-foreground leading-relaxed text-xl">{CONTENT.bio.whoAmI}</p>
           </div>
         </ScrollReveal>
 
@@ -587,9 +638,9 @@ const About = () => (
               <div className="p-2 rounded-lg bg-primary/10">
                 <Code2 className="w-5 h-5 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">What I Do</h3>
+              <h3 className="text-3xl font-semibold text-foreground">What I Do</h3>
             </div>
-            <p className="text-muted-foreground leading-relaxed">{CONTENT.bio.whatIDo}</p>
+            <p className="text-muted-foreground leading-relaxed text-xl">{CONTENT.bio.whatIDo}</p>
           </div>
         </ScrollReveal>
       </div>
@@ -601,7 +652,7 @@ const About = () => (
             <div className="p-2 rounded-lg bg-primary/10">
               <Layers className="w-5 h-5 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground">Tech Stack</h3>
+            <h3 className="text-3xl font-semibold text-foreground">Tech Stack</h3>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -613,7 +664,7 @@ const About = () => (
                 viewport={{ once: true }}
                 transition={{ delay: 0.4 + index * 0.05, duration: 0.3 }}
                 whileHover={{ scale: 1.05, y: -2 }}
-                className="group relative px-4 py-2 text-sm font-medium bg-secondary text-secondary-foreground rounded-full cursor-default overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
+                className="group relative px-4 py-2 text-lg font-medium bg-secondary text-secondary-foreground rounded-full cursor-default overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
               >
                 <span className="relative z-10">{skill}</span>
                 <motion.div
@@ -640,7 +691,7 @@ const Projects = () => (
       <ScrollReveal>
         <div className="flex items-center gap-3 mb-12">
           <div className="h-px flex-1 max-w-12 bg-gradient-to-r from-transparent to-primary" />
-          <h2 className="text-sm font-medium text-primary tracking-widest uppercase">Projects</h2>
+          <h2 className="text-xl font-medium text-primary tracking-widest uppercase">Projects</h2>
           <div className="h-px flex-1 max-w-12 bg-gradient-to-l from-transparent to-primary" />
         </div>
       </ScrollReveal>
@@ -661,13 +712,24 @@ const Projects = () => (
                 </div>
                 <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
+              <h3 className="text-2xl font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
                 {project.title}
               </h3>
-              <p className="text-muted-foreground text-sm mb-4">{project.description}</p>
+              <p className="text-muted-foreground text-lg mb-4">{project.description}</p>
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag) => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-secondary rounded-md text-secondary-foreground">
+                  <span 
+                    key={tag} 
+                    className={`text-base px-2 py-1 rounded-md ${
+                      tag === "Completed" 
+                        ? "bg-blue-500 text-white" 
+                        : tag === "Partially-Completed" 
+                          ? "bg-yellow-500 text-black" 
+                          : tag === "Work in Progress" 
+                            ? "bg-red-500 text-white" 
+                            : "bg-secondary text-secondary-foreground"
+                    }`}
+                  >
                     {tag}
                   </span>
                 ))}
@@ -690,7 +752,7 @@ const Experience = () => (
       <ScrollReveal>
         <div className="flex items-center gap-3 mb-12">
           <div className="h-px flex-1 max-w-12 bg-gradient-to-r from-transparent to-primary" />
-          <h2 className="text-sm font-medium text-primary tracking-widest uppercase">Experience</h2>
+          <h2 className="text-xl font-medium text-primary tracking-widest uppercase">Experience</h2>
           <div className="h-px flex-1 max-w-12 bg-gradient-to-l from-transparent to-primary" />
         </div>
       </ScrollReveal>
@@ -708,12 +770,12 @@ const Experience = () => (
                     {index === 0 ? <Briefcase className="w-5 h-5" /> : <GraduationCap className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground">{exp.role}</h3>
-                    <p className="text-primary font-medium">{exp.company}</p>
-                    <p className="text-muted-foreground text-sm mt-2">{exp.description}</p>
+                    <h3 className="text-2xl font-semibold text-foreground">{exp.role}</h3>
+                    <p className="text-primary font-medium text-xl">{exp.company}</p>
+                    <p className="text-muted-foreground text-lg mt-2">{exp.description}</p>
                   </div>
                 </div>
-                <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">{exp.period}</span>
+                <span className="text-lg text-muted-foreground font-medium whitespace-nowrap">{exp.period}</span>
               </div>
             </motion.div>
           </ScrollReveal>
@@ -735,7 +797,7 @@ const Contact = () => (
       <ScrollReveal>
         <div className="flex items-center gap-3 mb-12 justify-center">
           <div className="h-px flex-1 max-w-12 bg-gradient-to-r from-transparent to-primary" />
-          <h2 className="text-sm font-medium text-primary tracking-widest uppercase">Contact</h2>
+          <h2 className="text-xl font-medium text-primary tracking-widest uppercase">Contact</h2>
           <div className="h-px flex-1 max-w-12 bg-gradient-to-l from-transparent to-primary" />
         </div>
       </ScrollReveal>
@@ -747,7 +809,7 @@ const Contact = () => (
       </ScrollReveal>
 
       <ScrollReveal delay={0.2}>
-        <p className="text-muted-foreground mb-12 max-w-md mx-auto">
+        <p className="text-muted-foreground mb-12 max-w-md mx-auto text-xl">
           Have a project in mind or just want to chat about Web3? I'm always open to new opportunities and collaborations.
         </p>
       </ScrollReveal>
@@ -770,7 +832,7 @@ const Contact = () => (
               aria-label={social.label}
             >
               <social.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+              <span className="text-lg font-medium text-muted-foreground group-hover:text-primary transition-colors">
                 {social.label}
               </span>
             </motion.a>
@@ -779,7 +841,7 @@ const Contact = () => (
       </div>
 
       <ScrollReveal delay={0.7}>
-        <p className="mt-20 text-sm text-muted-foreground">
+        <p className="mt-20 text-lg text-muted-foreground">
           © {new Date().getFullYear()} {CONTENT.name}. Built with passion for the decentralized future.
         </p>
       </ScrollReveal>
