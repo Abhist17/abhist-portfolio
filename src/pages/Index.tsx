@@ -10,67 +10,105 @@ import CustomCursor from "@/components/CustomCursor";
 const CONTENT = {
   name: "Abhist Kamle",
   tagline: "Web3 Developer",
-  roles: ["Web3 Developer", "Blockchain Enthusiast", "Smart Contract Developer", "DeFi Builder"],
+  roles: [
+    "Web3 Developer",
+    "Blockchain Developer",
+    "Smart Contract Engineer",
+    "Competitive Programmer"
+  ],
   bio: {
-    whoAmI: `I'm a passionate Web3 developer diving deep into the decentralized future. 
-             Self-taught and driven by curiosity, I believe in building transparent, 
-             trustless systems that empower users worldwide.`,
-    whatIDo: `I design and develop decentralized applications, smart contracts, and 
-              blockchain solutions. From DeFi protocols to NFT platforms, I craft 
-              experiences that bridge the gap between complex technology and seamless UX.`,
+    whoAmI:
+      "I am a Web3 developer with 1.5 years of experience, specializing in Solidity and smart contract development. Along with blockchain, I have a strong foundation in competitive programming and data structures using Python. I have also participated in multiple hackathons, where I worked on real-world blockchain projects, solved challenging problems, and improved my technical and problem-solving skills.",
+
+    whatIDo:
+      "I build decentralized applications, smart contracts, and blockchain-based solutions. Whether it is DeFi platforms, NFT projects, or Web3 tools, I focus on creating secure, efficient, and user-friendly systems that make blockchain technology easier and more practical to use."
   },
-  skills: ["Solidity", "Ethereum", "React", "Next.js", "TypeScript", "Hardhat", "Web3.js", "IPFS", "Rust", "Tailwind"],
+
+  skills: [
+    "C",
+    "C++",
+    "Python",
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Tailwind",
+    "Node.js",
+    "Redis",
+    "Solidity",
+    "Ethereum",
+    "Hardhat",
+    "Ethers.js",
+    "Web3.js",
+    "Solana",
+    "Rust"
+  ],
   projects: [
     {
-      title: "DeFi Swap Protocol",
-      description: "Decentralized token swap with automated market making",
-      link: "https://github.com",
+      title: "Sadak Sathi",
+      description: "A solution-focused platform aimed at solving real-world challenges using tech-driven systems.",
+      link: "https://github.com/Abhist17/sadak-sathi-",
       icon: Zap,
-      tags: ["Solidity", "React", "Hardhat"],
+      tags: ["HTML", "CSS", "JavaScript","Python"],
     },
     {
-      title: "NFT Marketplace",
-      description: "Full-featured marketplace for digital collectibles",
-      link: "https://github.com",
+      title: "Web3 Todo App",
+      description: "A decentralized blockchain-based Todo application ensuring transparency and immutability.",
+      link: "https://github.com/Abhist17/todo-web3",
       icon: Sparkles,
-      tags: ["ERC-721", "IPFS", "Next.js"],
+      tags: ["HTML", "CSS", "JavaScript","Solidity"],
     },
     {
-      title: "DAO Governance",
-      description: "On-chain voting and proposal management system",
-      link: "https://github.com",
+      title: "Trade Journal",
+      description: "A trading activity tracker designed to analyze performance and improve trading discipline.",
+      link: "https://github.com/Abhist17/trade-journal",
       icon: Layers,
-      tags: ["Solidity", "TheGraph", "React"],
+      tags: ["TypeScript", "JavaScript",],
     },
     {
-      title: "Crypto Dashboard",
-      description: "Real-time portfolio tracking and analytics",
-      link: "https://github.com",
+      title: "JD–CV Matching AI",
+      description: "An AI-powered system that intelligently matches resumes to job descriptions using embeddings.",
+      link: "https://github.com/Abhist17/JD-CV-Matching",
       icon: Code2,
-      tags: ["TypeScript", "Web3.js", "Charts"],
+      tags: ["TypeScript", "Python", "Python Dependencies"],
     },
   ],
-  experience: [
+   experience: [
     {
-      role: "Web3 Developer",
-      company: "Freelance",
-      period: "2023 - Present",
-      description: "Building decentralized applications and smart contracts for various clients",
+      role: "Web3 Lead",
+      company: "Elevate Club",
+      period: "2025 - Present",
+      description:
+        "Driving the Web3 wave in my college by building a thriving blockchain community—organizing initiatives, leading sessions, and speaking to inspire the next generation of builders."
     },
     {
       role: "Computer Science Student",
-      company: "XYZ University",
-      period: "2021 - Present",
-      description: "Pursuing B.Tech in Computer Science with focus on blockchain technology",
+      company: "Indian Institute of Information Technology, Nagpur",
+      period: "2024 - Present",
+      description: "Pursuing B.Tech in Computer Science."
     },
+
+    {
+      role: "Partner Officer",
+      company: "Aditya Birla Capital Group",
+      period: "2025 - Present",
+      description: "Working as a PO in Aditya Birla Capital (Accounting and Revenue) "
+    },
+    {
+      role: "Core Member",
+      company: "Bhaisaaab DAO",
+      period: "2024 - Present",
+      description: "Working with the Indian Web3 community which focuses on education and collaboration in the blockchain space."
+    }
   ],
   socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    twitter: "https://twitter.com",
-    email: "mailto:hello@abhistkamle.dev",
+    github: "https://github.com/Abhist17",
+    linkedin: "https://www.linkedin.com/in/abhist-kamle-845079323/",
+    twitter: "https://x.com/_abhist_",
+    email: "abhistcodes17@gmail.com",
   },
-  resumeLink: "#",
+  resumeLink: "",
 };
 
 const NAV_ITEMS = [
@@ -150,7 +188,7 @@ const useWeb3Typewriter = (startDelay: number = 1500) => {
 
     const sequence = [
       { action: "type", text: "Web2", speed: 120 },
-      { action: "pause", duration: 600 },
+      { action: "pause", duration: 800 },
       { action: "delete", count: 1, speed: 80 },
       { action: "pause", duration: 300 },
       { action: "type", text: "3", speed: 120 },
@@ -434,17 +472,7 @@ const Hero = () => {
         animate="visible"
         variants={staggerContainer}
       >
-        {/* Decorative badge */}
-        <motion.div
-          variants={fadeInUp}
-          className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-sm"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-          </span>
-          <span className="text-sm text-primary font-medium">Available for work</span>
-        </motion.div>
+               
 
         {/* Typewriter Name */}
         <motion.h1 variants={fadeInUp} className="text-display mb-6 relative min-h-[1.2em]">
@@ -461,11 +489,11 @@ const Hero = () => {
         </motion.h1>
 
         {/* Web2 -> Web3 Typewriter Role */}
-        <div className="h-12 md:h-16 mb-8">
-          <p className="text-xl md:text-2xl lg:text-3xl text-primary font-semibold tracking-tight">
+        <div className="h-14 md:h-18 mb-10">
+          <p className="text-xl md:text-3xl lg:text-4xl text-primary font-semibold tracking-tight">
             {roleText}
             <motion.span
-              className="inline-block w-[2px] h-[0.9em] bg-primary ml-1 align-middle"
+              className="inline-block w-[3px] h-[1em] bg-primary ml-1 align-middle"
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
             />
