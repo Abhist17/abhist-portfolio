@@ -80,7 +80,9 @@ const CONTENT = {
       company: "Elevate Club",
       period: "2025 - Present",
       description:
-        "Driving the Web3 wave in my college by building a thriving blockchain community—organizing initiatives, leading sessions, and speaking to inspire the next generation of builders."
+        "Driving the Web3 wave in my college by building a thriving blockchain community—organizing initiatives, leading sessions, and speaking to inspire the next generation of builders.",
+      link: "/photos/web-3.png"
+
     },
     {
       role: "Computer Science Student",
@@ -760,10 +762,14 @@ const Experience = () => (
       <div className="space-y-6">
         {CONTENT.experience.map((exp, index) => (
           <ScrollReveal key={index} delay={0.1 + index * 0.15}>
-            <motion.div
+            <motion.a
+              href={exp.link}
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ x: 8 }}
-              className="relative p-6 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/50 transition-colors group"
+              className="relative block p-6 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/50 transition-colors group"
             >
+
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -777,7 +783,8 @@ const Experience = () => (
                 </div>
                 <span className="text-lg text-muted-foreground font-medium whitespace-nowrap">{exp.period}</span>
               </div>
-            </motion.div>
+            </motion.a>
+
           </ScrollReveal>
         ))}
       </div>
