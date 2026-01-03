@@ -1,5 +1,4 @@
 # Abhist — Portfolio Website
-
 A personal portfolio website to showcase my profile, skills, projects, achievements, and ways to connect with me.
 
 ## Live Website
