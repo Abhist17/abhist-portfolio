@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, Briefcase, GraduationCap, FileText, Folder, User, Layers, Twitter, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomCursor from "@/components/CustomCursor";
-
+import MusicPlayer from "@/components/MusicPlayer";
 
 // ============================================
 // CONTENT - Edit these to customize your portfolio
@@ -531,8 +531,6 @@ const Hero = () => {
         animate="visible"
         variants={staggerContainer}
       >
-               
-
         {/* Typewriter Name */}
         <motion.h1 variants={fadeInUp} className="text-display mb-6 relative min-h-[1.2em]">
           <span className="relative inline-block">
@@ -594,18 +592,25 @@ const Hero = () => {
         </motion.div>
       </motion.div>
 
-      <motion.a
-        href="#about"
-        className="absolute bottom-12 flex flex-col items-center gap-2 text-muted-foreground hover:text-primary group"
+      {/* SMOOTH SCROLL BUTTON */}
+      <motion.button
+        onClick={() => {
+          document.getElementById('about')?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }}
+        className="absolute bottom-12 flex flex-col items-center gap-2 text-muted-foreground hover:text-primary group cursor-pointer"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
+        whileHover={{ y: -4 }}
       >
         <span className="text-xl tracking-widest uppercase">Scroll</span>
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
           <ArrowDown className="w-4 h-4" />
         </motion.div>
-      </motion.a>
+      </motion.button>
     </section>
   );
 };
@@ -751,8 +756,9 @@ const Projects = () => (
 );
 
 // ============================================
-// EXPERIENCE SECTION
+// Experience Section
 // ============================================
+
 
 const Experience = () => (
   <section id="experience" className="py-32 px-6 relative">
@@ -855,7 +861,7 @@ const Contact = () => (
 
       <ScrollReveal delay={0.7}>
         <p className="mt-20 text-lg text-muted-foreground">
-          © {new Date().getFullYear()}. Built with passion for the decentralized future. Keep Building !!!
+          
         </p>
       </ScrollReveal>
     </div>
@@ -872,6 +878,7 @@ const Index = () => {
       <Navbar />
       <CustomCursor />
       <ThemeToggle />  {/* 🔥 ADD THIS LINE */}
+      <MusicPlayer />  {/* ADD THIS LINE */}
       <main className="min-h-screen cursor-none">
         <Hero />
         <About />

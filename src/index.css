@@ -82,4 +82,15 @@
     pointer-events: none;
     z-index: -1;
   }
+  /* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Even smoother with custom timing */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 }
