@@ -3,6 +3,7 @@ import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, 
 import { motion, AnimatePresence } from "framer-motion";
 import CustomCursor from "@/components/CustomCursor";
 
+
 // ============================================
 // CONTENT - Edit these to customize your portfolio
 // ============================================
@@ -88,27 +89,30 @@ const CONTENT = {
       role: "Computer Science Student",
       company: "Indian Institute of Information Technology, Nagpur",
       period: "2024 - Present",
-      description: "Pursuing B.Tech in Computer Science."
+      description: "Pursuing B.Tech in Computer Science.",
+      link: "https://iiitn.ac.in/"
     },
 
     {
       role: "Partner Officer",
       company: "Aditya Birla Capital Group",
       period: "2025 - Present",
-      description: "Working as a PO in Aditya Birla Capital (Accounting and Revenue) "
+      description: "Working as a PO in Aditya Birla Capital (Accounting and Revenue) ",
+      link: "https://www.linkedin.com/company/aditya-birla-capital/posts/?feedView=all"
     },
     {
       role: "Core Member",
       company: "Bhaisaaab DAO",
       period: "2024 - Present",
-      description: "Working with the Indian Web3 community which focuses on education and collaboration in the blockchain space."
+      description: "Working with the Indian Web3 community which focuses on education and collaboration in the blockchain space.",
+      link: "https://x.com/Bhaisaaab_"
     }
   ],
   socials: {
     github: "https://github.com/Abhist17",
     linkedin: "https://www.linkedin.com/in/abhist-kamle-845079323/",
     twitter: "https://x.com/_abhist_",
-    email: "abhistcodes17@gmail.com",
+    email: "mailto:abhistcodes17@gmail.com"
   },
   resumeLink: "",
 };
