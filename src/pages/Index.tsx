@@ -1,3 +1,4 @@
+import ThemeToggle from "@/components/ThemeToggle";
 import { useState, useEffect, useRef } from "react";
 import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, Briefcase, GraduationCap, FileText, Folder, User, Layers, Twitter, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -77,15 +78,6 @@ const CONTENT = {
   ],
    experience: [
     {
-      role: "Web3 Lead",
-      company: "Elevate Club",
-      period: "2025 - Present",
-      description:
-        "Driving the Web3 wave in my college by building a thriving blockchain community—organizing initiatives, leading sessions, and speaking to inspire the next generation of builders.",
-      link: "/photos/web-3.png"
-
-    },
-    {
       role: "Computer Science Student",
       company: "Indian Institute of Information Technology, Nagpur",
       period: "2024 - Present",
@@ -94,11 +86,21 @@ const CONTENT = {
     },
 
     {
-      role: "Partner Officer",
-      company: "Aditya Birla Capital Group",
+      role: "Web3 Lead",
+      company: "Elevate Club",
       period: "2025 - Present",
-      description: "Working as a PO in Aditya Birla Capital (Accounting and Revenue) ",
-      link: "https://www.linkedin.com/company/aditya-birla-capital/posts/?feedView=all"
+      description:
+        "Driving the Web3 wave in my college by building a thriving blockchain community, organizing initiatives, leading sessions, and speaking to inspire the next generation of builders.",
+      link: "/photos/web-3.png"
+
+    },
+    
+    {
+      role: "Builder",
+      company: "Solana Turbin3",
+      period: "2025 - Present",
+      description: "Getting hands-on experience in building on Solana with the Turbin3 Async Builders Program.",
+      link: "https://x.com/solanaturbine"
     },
     {
       role: "Core Member",
@@ -110,7 +112,7 @@ const CONTENT = {
   ],
   socials: {
     github: "https://github.com/Abhist17",
-    linkedin: "https://www.linkedin.com/in/abhist-kamle-845079323/",
+    linkedin: "https://www.linkedin.com/in/abhist-k-845079323/",
     twitter: "https://x.com/_abhist_",
     email: "mailto:abhistcodes17@gmail.com"
   },
@@ -853,7 +855,7 @@ const Contact = () => (
 
       <ScrollReveal delay={0.7}>
         <p className="mt-20 text-lg text-muted-foreground">
-          © {new Date().getFullYear()} {CONTENT.name}. Built with passion for the decentralized future.
+          © {new Date().getFullYear()}. Built with passion for the decentralized future. Keep Building !!!
         </p>
       </ScrollReveal>
     </div>
@@ -869,6 +871,7 @@ const Index = () => {
     <>
       <Navbar />
       <CustomCursor />
+      <ThemeToggle />  {/* 🔥 ADD THIS LINE */}
       <main className="min-h-screen cursor-none">
         <Hero />
         <About />
