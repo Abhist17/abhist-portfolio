@@ -4,6 +4,7 @@ import { Github, Linkedin, Mail, ArrowDown, ExternalLink, Sparkles, Code2, Zap, 
 import { motion, AnimatePresence } from "framer-motion";
 import CustomCursor from "@/components/CustomCursor";
 import MusicPlayer from "@/components/MusicPlayer";
+import LinkPreview from "@/components/LinkPreview";
 
 // ============================================
 // CONTENT - Edit these to customize your portfolio
@@ -415,12 +416,17 @@ const Navbar = () => {
       <div className="container max-w-5xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.a
-            href="#"
-            className="text-4xl font-bold text-foreground hover:text-primary transition-colors"
-            whileHover={{ scale: 1.05 }}
-          >
-            AK
-          </motion.a>
+  href="#"
+  className="flex items-center hover:opacity-90 transition-opacity"
+  whileHover={{ scale: 1.05 }}
+>
+  <img
+    src="/photos/abhiii.jpg"
+    alt="Abhist Kamle"
+    className="w-10 h-10 rounded-full object-cover border border-border"
+  />
+</motion.a>
+
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
@@ -834,29 +840,56 @@ const Contact = () => (
       </ScrollReveal>
 
       <div className="flex items-center justify-center gap-4 flex-wrap">
-        {[
-          { href: CONTENT.socials.github, icon: Github, label: "GitHub" },
-          { href: CONTENT.socials.linkedin, icon: Linkedin, label: "LinkedIn" },
-          { href: CONTENT.socials.twitter, icon: Twitter, label: "X / Twitter" },
-          { href: CONTENT.socials.email, icon: Mail, label: "Email" },
-        ].map((social, index) => (
-          <ScrollReveal key={social.label} delay={0.3 + index * 0.1} direction={index % 2 === 0 ? "up" : "down"}>
-            <motion.a
-              href={social.href}
-              target={social.href.startsWith("mailto") ? undefined : "_blank"}
-              rel={social.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-              whileHover={{ scale: 1.1, y: -4 }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center gap-3 px-6 py-3 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/50 hover:bg-primary/10 transition-all"
-              aria-label={social.label}
-            >
-              <social.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-lg font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                {social.label}
-              </span>
-            </motion.a>
-          </ScrollReveal>
-        ))}
+  {[
+  { 
+    href: CONTENT.socials.github, 
+    icon: Github, 
+    label: "GitHub",
+    previewImage: "/photos/github.jpg"
+  },
+  { 
+    href: CONTENT.socials.linkedin, 
+    icon: Linkedin, 
+    label: "LinkedIn",
+    previewImage: "/photos/abhist-linkedin.jpg"
+  },
+  { 
+    href: CONTENT.socials.twitter, 
+    icon: Twitter, 
+    label: "X / Twitter",
+    previewImage: "/photos/x.png"
+  },
+  { 
+  href: CONTENT.socials.email, 
+  icon: Mail, 
+  label: "Email",
+  previewImage: "/photos/gmail-logo.jpg",
+  isSmall: true  // ADD THIS LINE
+},
+].map((social, index) => (
+  <ScrollReveal key={social.label} delay={0.3 + index * 0.1} direction={index % 2 === 0 ? "up" : "down"}>
+    <LinkPreview
+      href={social.href}
+      previewImage={social.previewImage}
+      isSmall={social.isSmall}
+    >
+      <motion.a
+        href={social.href}
+        target={social.href.startsWith("mailto") ? undefined : "_blank"}
+        rel={social.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+        whileHover={{ scale: 1.1, y: -4 }}
+        whileTap={{ scale: 0.95 }}
+        className="group flex items-center gap-3 px-6 py-3 rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/50 hover:bg-primary/10 transition-all"
+        aria-label={social.label}
+      >
+        <social.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+        <span className="text-lg font-medium text-muted-foreground group-hover:text-primary transition-colors">
+          {social.label}
+        </span>
+      </motion.a>
+    </LinkPreview>
+  </ScrollReveal>
+))}
       </div>
 
       <ScrollReveal delay={0.7}>
@@ -868,9 +901,6 @@ const Contact = () => (
   </section>
 );
 
-// ============================================
-// MAIN PAGE
-// ============================================
 
 const Index = () => {
   return (
