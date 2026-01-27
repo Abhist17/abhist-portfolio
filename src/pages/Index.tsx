@@ -91,7 +91,7 @@ const CONTENT = {
       company: "Elevate Club",
       period: "2025 - Present",
       description:
-        "Driving the Web3 wave in my college by building a thriving blockchain community, organizing initiatives, leading sessions, and speaking to inspire the next generation of builders.",
+        "Driving the Web3 wave in my college by building a thriving blockchain community, organizing initiatives, leading sessions, and speaking to inspire the next generation of Web 3 builders.",
       link: "/photos/web-3.png"
 
     },
