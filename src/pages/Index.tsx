@@ -12,12 +12,11 @@ const Fonts = () => (
     .dm { font-family: 'DM Mono', monospace; }
     .fr { font-family: 'Fragment Mono', monospace; }
     @font-face {
-  font-family: 'Soria';
-  src: url('/fonts/Soria.woff2') format('woff2'),
-       url('/fonts/Soria.ttf') format('truetype');
-}
-.soria { font-family: 'Soria', serif; }
-    
+      font-family: 'Soria';
+      src: url('/fonts/Soria.woff2') format('woff2'),
+           url('/fonts/Soria.ttf') format('truetype');
+    }
+    .soria { font-family: 'Soria', serif; }
 
     * { box-sizing: border-box; }
 
@@ -27,6 +26,88 @@ const Fonts = () => (
     @media (max-width: 768px) {
       .hidden-mobile { display: none !important; }
       .show-mobile   { display: flex !important; }
+    }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+
+      /* Hero */
+      .hero-section {
+        padding: 0 20px !important;
+      }
+
+      /* About: single column */
+      #about > div {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+      }
+      #about .sticky-left {
+        position: static !important;
+      }
+
+      /* Projects: stack number + content + badge vertically */
+      .proj-row {
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+      .proj-right {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        min-width: unset !important;
+      }
+
+      /* Experience: single column */
+      .exp-row {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      .exp-icon { display: none !important; }
+
+      /* Contact heading */
+      .contact-heading {
+        font-size: clamp(44px, 12vw, 90px) !important;
+      }
+
+      /* Contact "Have a project" text */
+      .contact-cta {
+        font-size: clamp(28px, 9vw, 88px) !important;
+      }
+
+      /* Social rows: truncate handle on small screens */
+      .social-handle {
+        display: none !important;
+      }
+
+      /* General section padding */
+      .section-pad {
+        padding: 64px 20px !important;
+      }
+
+      /* Dividers */
+      .divider-wrap {
+        padding: 0 20px !important;
+      }
+
+      /* Navbar inner padding */
+      .nav-inner {
+        padding: 0 20px !important;
+      }
+
+      /* Mobile menu padding */
+      .mobile-menu-inner {
+        padding: 24px 20px !important;
+      }
+
+      /* Stats: tighter on mobile */
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 16px !important;
+      }
+      .stat-num {
+        font-size: 32px !important;
+      }
     }
   `}</style>
 );
@@ -44,7 +125,7 @@ const SKILLS = {
 
 const PROJECTS = [
   { n:"01", title:"Sadak Sathi",            done:true,  stack:"HTML · CSS · JS · Python",       link:"https://github.com/Abhist17/sadak-sathi-",          desc:"Real-world problem solving via tech-driven systems focused on road safety, reporting, and actionable civic insights." },
-  { n:"02", title:"Web3 Todo",              done:true, stack:"Solidity · JS · HTML",            link:"https://github.com/Abhist17/todo-web3",             desc:"Fully on-chain task manager with immutable state. Built to explore decentralized state persistence and user-owned data." },
+  { n:"02", title:"Web3 Todo",              done:true,  stack:"Solidity · JS · HTML",            link:"https://github.com/Abhist17/todo-web3",             desc:"Fully on-chain task manager with immutable state. Built to explore decentralized state persistence and user-owned data." },
   { n:"03", title:"Trade Journal",          done:false, stack:"TypeScript · JS",                 link:"https://github.com/Abhist17/trade-journal",         desc:"Performance tracking system for traders — logs trades, analyzes patterns, and enforces disciplined decision-making." },
   { n:"04", title:"JD-CV Match AI",         done:true,  stack:"TypeScript · Python",             link:"https://github.com/Abhist17/JD-CV-Matching",        desc:"Embedding + NER-based matching engine that aligns resumes with job descriptions using semantic similarity scoring." },
   { n:"05", title:"DigiPramaan",            done:true,  stack:"Solidity · Web3.js · Node.js",   link:"https://github.com/Abhist17/iitr",                  desc:"A REST API that accepts Indian government identity documents (Aadhaar, PAN, Domicile, etc.), automatically processes them, and returns structured data." },
@@ -60,10 +141,10 @@ const EXP = [
 ];
 
 const SOCIALS = [
-  { label:"Email",    handle:"abhistcodes17@gmail.com", href:"mailto:abhistcodes17@gmail.com",                       Icon:Mail     },
-  { label:"Twitter",  handle:"@_abhist_",               href:"https://x.com/_abhist_",                               Icon:Twitter  },
-  { label:"GitHub",   handle:"Abhist17",                href:"https://github.com/Abhist17",                          Icon:Github   },
-  { label:"LinkedIn", handle:"abhist-k-...",            href:"https://www.linkedin.com/in/abhist-k-845079323/",      Icon:Linkedin },
+  { label:"Email",    handle:"abhistcodes17@gmail.com", href:"mailto:abhistcodes17@gmail.com",                  Icon:Mail     },
+  { label:"Twitter",  handle:"@_abhist_",               href:"https://x.com/_abhist_",                          Icon:Twitter  },
+  { label:"GitHub",   handle:"Abhist17",                href:"https://github.com/Abhist17",                     Icon:Github   },
+  { label:"LinkedIn", handle:"abhist-k-...",            href:"https://www.linkedin.com/in/abhist-k-845079323/", Icon:Linkedin },
 ];
 
 const NAV = [
@@ -142,7 +223,7 @@ function R({ children, d = 0, y = 18, className = "" }:
 ───────────────────────────────────────────── */
 function Divider({ label }: { label: string }) {
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px" }}>
+    <div className="divider-wrap" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px" }}>
       <div style={{ borderTop: "1px solid #2a2a2a", display: "flex", alignItems: "center", gap: 16 }}>
         <span className="fr" style={{ fontSize: 9, color: "#c8ff00", letterSpacing: "0.35em", textTransform: "uppercase", padding: "8px 0", flexShrink: 0 }}>
           {label}
@@ -173,7 +254,7 @@ function Navbar() {
           backdropFilter: scrolled ? "blur(12px)" : "none",
           transition: "all 0.4s",
         }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="nav-inner" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 
           {/* Logo */}
           <a href="#" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
@@ -217,7 +298,7 @@ function Navbar() {
             initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}
             style={{ position: "fixed", top: 56, left: 0, right: 0, zIndex: 40, background: "#0a0a0a", borderBottom: "1px solid #2a2a2a" }}>
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 40px", display: "flex", flexDirection: "column", gap: 20 }}>
+            <div className="mobile-menu-inner" style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 40px", display: "flex", flexDirection: "column", gap: 20 }}>
               {NAV.map(n => (
                 <a key={n.label} href={n.href} onClick={() => setOpen(false)} className="fr"
                   style={{ fontSize: 11, color: "#ffffff", letterSpacing: "0.3em", textTransform: "uppercase", textDecoration: "none", transition: "color 0.2s" }}
@@ -241,7 +322,7 @@ function Hero() {
   const role = useTyper();
 
   return (
-    <section style={{
+    <section className="hero-section" style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
       justifyContent: "space-between", padding: "0 40px",
       maxWidth: 1100, margin: "0 auto",
@@ -265,7 +346,7 @@ function Hero() {
           initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
           className="bb"
-          style={{ fontSize: "clamp(72px, 19vw, 160px)", color: "#f0f0f0", lineHeight: 0.87, letterSpacing: "-0.01em", whiteSpace: "pre-line", userSelect: "none", margin: 0 }}>
+          style={{ fontSize: "clamp(56px, 19vw, 160px)", color: "#f0f0f0", lineHeight: 0.87, letterSpacing: "-0.01em", whiteSpace: "pre-line", userSelect: "none", margin: 0 }}>
           {"ABHIST\nKAMLE"}
         </motion.h1>
 
@@ -351,12 +432,12 @@ function HoverBtn({ href, children, primary, target }: {
 ───────────────────────────────────────────── */
 function About() {
   return (
-    <section id="about" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
+    <section id="about" className="section-pad" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 80, alignItems: "start" }}>
 
         {/* Left sticky */}
         <R d={0.05}>
-          <div style={{ position: "sticky", top: 88 }}>
+          <div className="sticky-left" style={{ position: "sticky", top: 88 }}>
             <span className="fr" style={{ fontSize: 9, color: "#aaaaaa", letterSpacing: "0.4em", textTransform: "uppercase" }}></span>
             <h2 className="bb" style={{ fontSize: 52, color: "#f0f0f0", lineHeight: 1, marginTop: 8, marginBottom: 36, letterSpacing: "0.03em" }}>About</h2>
 
@@ -391,10 +472,10 @@ function About() {
 
           {/* Stats */}
           <R d={0.28}>
-            <div style={{ borderTop: "1px solid #2a2a2a", paddingTop: 28, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 8 }}>
+            <div className="stats-grid" style={{ borderTop: "1px solid #2a2a2a", paddingTop: 28, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 8 }}>
               {[["1.5y", "Web3 exp"], ["4+", "Projects"], ["3+", "Communities"]].map(([v, l]) => (
                 <div key={l}>
-                  <p className="bb" style={{ fontSize: 42, color: "#c8ff00", lineHeight: 1, letterSpacing: "0.04em" }}>{v}</p>
+                  <p className="bb stat-num" style={{ fontSize: 42, color: "#c8ff00", lineHeight: 1, letterSpacing: "0.04em" }}>{v}</p>
                   <p className="fr" style={{ fontSize: 9, color: "#aaaaaa", letterSpacing: "0.3em", textTransform: "uppercase", marginTop: 8 }}>{l}</p>
                 </div>
               ))}
@@ -402,12 +483,6 @@ function About() {
           </R>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          #about > div { grid-template-columns: 1fr !important; gap: 40px !important; }
-        }
-      `}</style>
     </section>
   );
 }
@@ -435,7 +510,7 @@ function SkillTag({ children }: { children: React.ReactNode }) {
 ───────────────────────────────────────────── */
 function Projects() {
   return (
-    <section id="projects" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
+    <section id="projects" className="section-pad" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
       <R d={0}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 20, marginBottom: 56 }}>
           <h2 className="bb" style={{ fontSize: 52, color: "#f0f0f0", lineHeight: 1, letterSpacing: "0.03em", margin: 0 }}>Work</h2>
@@ -454,6 +529,7 @@ function ProjectRow({ p }: { p: typeof PROJECTS[0] }) {
     <a href={p.link} target="_blank" rel="noreferrer"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className="proj-row"
       style={{
         display: "flex", alignItems: "flex-start", gap: 40, padding: "28px 0",
         borderTop: `1px solid ${hov ? "rgba(200,255,0,0.3)" : "#2a2a2a"}`,
@@ -480,7 +556,7 @@ function ProjectRow({ p }: { p: typeof PROJECTS[0] }) {
       </div>
 
       {/* Right side */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0, minWidth: 100 }}>
+      <div className="proj-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0, minWidth: 100 }}>
         <span className="fr" style={{
           fontSize: 9, padding: "3px 8px", borderRadius: 2, letterSpacing: "0.3em",
           border: `1px solid ${p.done ? "rgba(200,255,0,0.5)" : "#ca3c3c"}`,
@@ -502,7 +578,7 @@ function ProjectRow({ p }: { p: typeof PROJECTS[0] }) {
 ───────────────────────────────────────────── */
 function Experience() {
   return (
-    <section id="experience" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
+    <section id="experience" className="section-pad" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
       <R d={0}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 20, marginBottom: 56 }}>
           <h2 className="bb" style={{ fontSize: 52, color: "#f0f0f0", lineHeight: 1, letterSpacing: "0.03em", margin: 0 }}>Background</h2>
@@ -521,6 +597,7 @@ function ExpRow({ e }: { e: typeof EXP[0] }) {
     <a href={e.link} target="_blank" rel="noreferrer"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className="exp-row"
       style={{
         display: "grid", gridTemplateColumns: "160px 1fr 20px", gap: 40, padding: "28px 0",
         borderTop: `1px solid ${hov ? "rgba(200,255,0,0.3)" : "#2a2a2a"}`,
@@ -535,13 +612,7 @@ function ExpRow({ e }: { e: typeof EXP[0] }) {
         <p className="dm" style={{ fontSize: 12, color: hov ? "#c8ff00" : "#ffffff", margin: "0 0 8px", transition: "color 0.2s" }}>{e.role}</p>
         <p className="dm" style={{ fontSize: 12, color: hov ? "#dddddd" : "#cccccc", lineHeight: 1.75, margin: 0, transition: "color 0.2s" }}>{e.desc}</p>
       </div>
-      <ExternalLink size={13} style={{ color: "#c8ff00", opacity: hov ? 1 : 0, transition: "opacity 0.2s", marginTop: 2 }} />
-
-      <style>{`
-        @media (max-width: 768px) {
-          a[href="${e.link}"] { grid-template-columns: 1fr !important; gap: 12px !important; }
-        }
-      `}</style>
+      <ExternalLink className="exp-icon" size={13} style={{ color: "#c8ff00", opacity: hov ? 1 : 0, transition: "opacity 0.2s", marginTop: 2 }} />
     </a>
   );
 }
@@ -551,16 +622,15 @@ function ExpRow({ e }: { e: typeof EXP[0] }) {
 ───────────────────────────────────────────── */
 function Contact() {
   return (
-    <section id="contact" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
+    <section id="contact" className="section-pad" style={{ padding: "96px 40px", maxWidth: 1100, margin: "0 auto" }}>
       <R d={0}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 20, marginBottom: 56 }}>
-          <h2 className="bb" style={{ fontSize: 90, color: "#f0f0f0", lineHeight: 1, letterSpacing: "0.03em", margin: 0 }}>Contact</h2>
-          
+          <h2 className="bb contact-heading" style={{ fontSize: 90, color: "#f0f0f0", lineHeight: 1, letterSpacing: "0.03em", margin: 0 }}>Contact</h2>
         </div>
       </R>
 
       <R d={0.06}>
-        <p className="bb" style={{ fontSize: "clamp(36px, 8vw, 88px)", color: "#c8ff00", lineHeight: 0.95, marginBottom: 56 }}>
+        <p className="bb contact-cta" style={{ fontSize: "clamp(36px, 8vw, 88px)", color: "#c8ff00", lineHeight: 0.95, marginBottom: 56 }}>
           Have a project?<br />
           <span style={{ color: "#f0f0f0" }}>Let's build it.</span>
         </p>
@@ -572,12 +642,11 @@ function Contact() {
       <R d={0.38}>
         <div style={{ marginTop: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span className="fr" style={{ fontSize: 12, color: "#aaaaaa", letterSpacing: "0.4em", textTransform: "uppercase" }}>Made with ❤️ in Room 524</span>
-          
         </div>
       </R>
     </section>
   );
-} 
+}
 
 function ContactRow({ s }: { s: typeof SOCIALS[0] }) {
   const [hov, setHov] = useState(false);
@@ -600,7 +669,7 @@ function ContactRow({ s }: { s: typeof SOCIALS[0] }) {
         <span className="fr" style={{ fontSize: 10, color: hov ? "#c8ff00" : "#ffffff", letterSpacing: "0.35em", textTransform: "uppercase", transition: "color 0.2s" }}>{s.label}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <span className="dm" style={{ fontSize: 12, color: hov ? "#c8ff00" : "#cccccc", transition: "color 0.2s" }}>{s.handle}</span>
+        <span className="dm social-handle" style={{ fontSize: 12, color: hov ? "#c8ff00" : "#cccccc", transition: "color 0.2s" }}>{s.handle}</span>
         <ArrowUpRight size={13} style={{ color: "#c8ff00", opacity: hov ? 1 : 0, transition: "opacity 0.2s" }} />
       </div>
     </a>
