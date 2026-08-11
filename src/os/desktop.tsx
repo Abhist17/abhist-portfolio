@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useDragControls } from "framer-motion";
+import { AnimatePresence, motion, useDragControls, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ME, SOCIALS, STATS, THEMES, PROJECTS, SKILLS } from "./data";
 import { AppIcon, SocialIcon } from "./icons";
 import { AppBody } from "./apps";
 import { CONFIG } from "./config";
+import { TOOLS, ToolIcon, type Tool } from "./tech";
 import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
 import {
   APPS, appMeta, fmtDate, fmtTime, useClock, useSystem, type AppId, type WinState,
@@ -297,15 +298,18 @@ function Window({ win }: { win: WinState }) {
       ref={ref}
       className={`win ${active ? "is-active" : ""}`}
       style={{ width: win.w, height: win.h, zIndex: 100 + win.z }}
-      initial={{ opacity: 0, scale: 0.94, x: win.x, y: win.y }}
+      initial={{ opacity: 0, scale: 0.9, y: win.y + 18, x: win.x }}
       animate={{
         opacity: win.minimised ? 0 : 1,
         scale: win.minimised ? 0.86 : 1,
         x: win.x, y: win.y,
         pointerEvents: win.minimised ? "none" : "auto",
       }}
-      exit={{ opacity: 0, scale: 0.94 }}
-      transition={{ duration: 0.28, ease: EASE }}
+      exit={{ opacity: 0, scale: 0.93, transition: { duration: 0.18, ease: "easeIn" } }}
+      transition={{
+        default: { type: "spring", stiffness: 420, damping: 32, mass: 0.7 },
+        opacity: { duration: 0.18 },
+      }}
       drag
       dragControls={controls}
       dragListener={false}
@@ -346,27 +350,54 @@ export function Windows() {
 /* ═════════════════════════════════════════════
    DOCK
 ═════════════════════════════════════════════ */
+/* macOS-style magnification: each tile scales by how close the pointer is,
+   so neighbours swell too instead of one tile popping on hover. */
+function DockTile({ tool, mouseX, onOpen }: {
+  tool: Tool; mouseX: ReturnType<typeof useMotionValue<number | null>>; onOpen: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  const distance = useTransform(mouseX, (x) => {
+    if (x === null || !ref.current) return 9999;
+    const b = ref.current.getBoundingClientRect();
+    return Math.abs(x - (b.left + b.width / 2));
+  });
+
+  const scale = useSpring(
+    useTransform(distance, [0, 60, 130], [1.62, 1.22, 1]),
+    { stiffness: 340, damping: 26, mass: 0.5 },
+  );
+  const lift = useSpring(
+    useTransform(distance, [0, 60, 130], [-13, -5, 0]),
+    { stiffness: 340, damping: 26, mass: 0.5 },
+  );
+
+  return (
+    <button ref={ref} className="dock-item" onClick={onOpen} aria-label={tool.name}>
+      <motion.span className="dock-art" style={{ scale, y: lift }}>
+        <ToolIcon tool={tool} size={46} />
+      </motion.span>
+      <span className="dock-tip">{tool.name}</span>
+    </button>
+  );
+}
+
 export function Dock() {
-  const { open, windows } = useSystem();
-  const dockApps = APPS.filter(a => a.inDock);
-  const stack = Object.values(SKILLS).flat();
+  const { open } = useSystem();
+  const mouseX = useMotionValue<number | null>(null);
 
   return (
     <motion.div className="dock-wrap"
       initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.45, ease: EASE }}>
-      <p className="dock-kicker">{stack.length} tools · {ME.handle}</p>
-      <div className="dock">
-        {dockApps.map(a => {
-          const isOpen = windows.some(w => w.id === a.id);
-          return (
-            <button key={a.id} className="dock-item" onClick={() => open(a.id)} aria-label={a.name}>
-              <span className="dock-art"><AppIcon kind={a.kind} size={44} src={ME.avatar} /></span>
-              <span className="dock-tip">{a.name}</span>
-              <span className={`dock-dot ${isOpen ? "on" : ""}`} />
-            </button>
-          );
-        })}
+      <p className="dock-kicker">Tech stack</p>
+      <div
+        className="dock"
+        onPointerMove={e => mouseX.set(e.clientX)}
+        onPointerLeave={() => mouseX.set(null)}>
+        {TOOLS.map(t => (
+          <DockTile key={t.id} tool={t} mouseX={mouseX} onOpen={() => open("stack")} />
+        ))}
       </div>
     </motion.div>
   );

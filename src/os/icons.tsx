@@ -1,25 +1,38 @@
 /* ─────────────────────────────────────────────
-   Hand-drawn SVG iconography.
-   No emoji, no icon font — the desktop needs
-   icons that hold up at 64px.
+   DESKTOP ICONOGRAPHY
+   Drawn with depth: a lit top edge, a body
+   gradient and a contact shadow, so they read as
+   objects at 60px rather than flat glyphs.
 ───────────────────────────────────────────── */
 
 type P = { size?: number };
+
+/** Shared soft shadow under every icon. */
+const Shadow = () => (
+  <ellipse cx="32" cy="57.5" rx="17" ry="3.1" fill="#000" opacity=".2" />
+);
 
 export function FolderIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <defs>
-        <linearGradient id="fld-b" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8fc4f5" /><stop offset="1" stopColor="#4a90d9" />
+        <linearGradient id="f-back" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7fb6ee" /><stop offset="1" stopColor="#4a86cc" />
         </linearGradient>
-        <linearGradient id="fld-f" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#a8d4fa" /><stop offset="1" stopColor="#5ea3e6" />
+        <linearGradient id="f-front" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#bcdcfb" /><stop offset="0.5" stopColor="#8bbef2" />
+          <stop offset="1" stopColor="#5b9ada" />
         </linearGradient>
       </defs>
-      <path d="M5 16a4 4 0 0 1 4-4h15l6 6h25a4 4 0 0 1 4 4v9H5z" fill="url(#fld-b)" />
-      <path d="M5 22h54v27a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" fill="url(#fld-f)" />
-      <path d="M5 22h54v3H5z" fill="#fff" opacity=".28" />
+      <Shadow />
+      {/* back leaf */}
+      <path d="M6 17a4 4 0 0 1 4-4h13.4a3 3 0 0 1 2.2 1l4.2 4.4H54a4 4 0 0 1 4 4v6H6z" fill="url(#f-back)" />
+      {/* a sliver of paper poking out */}
+      <rect x="15" y="19" width="34" height="7" rx="1.6" fill="#f4f1ea" opacity=".92" />
+      {/* front leaf */}
+      <path d="M6 23h52v25a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="url(#f-front)" />
+      <path d="M6 23h52v1.8H6z" fill="#fff" opacity=".55" />
+      <path d="M8.6 50.4h46.8" stroke="#3f7cbe" strokeWidth="1" opacity=".4" />
     </svg>
   );
 }
@@ -27,11 +40,21 @@ export function FolderIcon({ size = 64 }: P) {
 export function DocIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <path d="M14 6h24l14 14v38a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" fill="#fdfdfb" />
-      <path d="M38 6l14 14H40a2 2 0 0 1-2-2z" fill="#d8d6d0" />
-      <g stroke="#b9b6ae" strokeWidth="1.6" strokeLinecap="round">
-        <path d="M20 30h24M20 37h24M20 44h16" />
+      <defs>
+        <linearGradient id="d-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#e6e2d9" />
+        </linearGradient>
+      </defs>
+      <Shadow />
+      <path d="M14 6h22.5L52 21.5V56a2.5 2.5 0 0 1-2.5 2.5h-35A2.5 2.5 0 0 1 12 56V8.5A2.5 2.5 0 0 1 14.5 6z"
+        fill="url(#d-body)" stroke="#cfcabd" strokeWidth="1" />
+      {/* folded corner */}
+      <path d="M36.5 6L52 21.5H39a2.5 2.5 0 0 1-2.5-2.5z" fill="#d3cec2" />
+      <path d="M36.5 6L52 21.5h-2.4L36.5 8.4z" fill="#bdb8ab" />
+      <g stroke="#a8a496" strokeWidth="1.7" strokeLinecap="round">
+        <path d="M20 30h24M20 37h24M20 44h24M20 51h15" />
       </g>
+      <path d="M20 30h24" stroke="#c4462f" strokeWidth="1.7" strokeLinecap="round" opacity=".75" />
     </svg>
   );
 }
@@ -39,16 +62,24 @@ export function DocIcon({ size = 64 }: P) {
 export function TerminalIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <rect x="5" y="9" width="54" height="46" rx="7" fill="#16161a" />
-      <rect x="5" y="9" width="54" height="12" rx="7" fill="#2b2b31" />
-      <rect x="5" y="16" width="54" height="5" fill="#2b2b31" />
-      <circle cx="14" cy="15" r="2.4" fill="#ff5f57" />
-      <circle cx="22" cy="15" r="2.4" fill="#febc2e" />
-      <circle cx="30" cy="15" r="2.4" fill="#28c840" />
-      <g stroke="#6ee7a8" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 31l7 6-7 6" />
+      <defs>
+        <linearGradient id="t-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#33333c" /><stop offset="1" stopColor="#141418" />
+        </linearGradient>
+      </defs>
+      <Shadow />
+      <rect x="6" y="9" width="52" height="45" rx="8" fill="url(#t-body)" />
+      <rect x="6" y="9" width="52" height="45" rx="8" fill="none" stroke="#4a4a55" strokeWidth="1" />
+      <path d="M6 17.5a8 8 0 0 1 8-8.5h36a8 8 0 0 1 8 8.5v.5H6z" fill="#3d3d47" />
+      <circle cx="15" cy="14.4" r="2.5" fill="#ff5f57" />
+      <circle cx="23.5" cy="14.4" r="2.5" fill="#febc2e" />
+      <circle cx="32" cy="14.4" r="2.5" fill="#28c840" />
+      <g stroke="#6ee7a8" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 30l7.5 6.5L16 43" />
       </g>
-      <path d="M27 43h14" stroke="#6ee7a8" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M29 43.5h16" stroke="#6ee7a8" strokeWidth="2.8" strokeLinecap="round" opacity=".8" />
+      {/* screen glare */}
+      <path d="M6 20h52v10c-18 5-34 4-52 0z" fill="#fff" opacity=".045" />
     </svg>
   );
 }
@@ -57,12 +88,15 @@ export function MailIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <defs>
-        <linearGradient id="ml" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#7fd0ff" /><stop offset="1" stopColor="#2f8de0" />
+        <linearGradient id="m-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7fd2ff" /><stop offset="1" stopColor="#2b7fd4" />
         </linearGradient>
       </defs>
-      <rect x="5" y="14" width="54" height="36" rx="7" fill="url(#ml)" />
-      <path d="M8 20l24 16 24-16" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Shadow />
+      <rect x="6" y="14" width="52" height="36" rx="8" fill="url(#m-body)" />
+      <path d="M6 22a8 8 0 0 1 8-8h36a8 8 0 0 1 8 8L32 39z" fill="#fff" opacity=".9" />
+      <path d="M6 22L32 39l26-17v3.4L32 42.6 6 25.4z" fill="#1f6cb8" opacity=".5" />
+      <rect x="6" y="14" width="52" height="36" rx="8" fill="none" stroke="#1f6cb8" strokeWidth="1" opacity=".5" />
     </svg>
   );
 }
@@ -70,11 +104,22 @@ export function MailIcon({ size = 64 }: P) {
 export function GridIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <rect x="5" y="5" width="54" height="54" rx="12" fill="#1f2430" />
-      {[0, 1, 2].map(r => [0, 1, 2].map(c => (
-        <rect key={`${r}-${c}`} x={14 + c * 13} y={14 + r * 13} width="9" height="9" rx="2.4"
-          fill={r === 1 && c === 1 ? "#c4462f" : "#8d94a5"} opacity={r === 1 && c === 1 ? 1 : 0.85} />
-      )))}
+      <defs>
+        <linearGradient id="g-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2c3444" /><stop offset="1" stopColor="#161b25" />
+        </linearGradient>
+      </defs>
+      <Shadow />
+      <rect x="6" y="6" width="52" height="52" rx="13" fill="url(#g-body)" />
+      <rect x="6" y="6" width="52" height="52" rx="13" fill="none" stroke="#495265" strokeWidth="1" />
+      {[0, 1, 2].map(r => [0, 1, 2].map(c => {
+        const mid = r === 1 && c === 1;
+        return (
+          <rect key={`${r}-${c}`} x={15 + c * 12.5} y={15 + r * 12.5} width="9.5" height="9.5" rx="2.8"
+            fill={mid ? "#c4462f" : "#9aa3b5"} opacity={mid ? 1 : 0.9} />
+        );
+      }))}
+      <path d="M6 19a13 13 0 0 1 13-13h26a13 13 0 0 1 13 13z" fill="#fff" opacity=".06" />
     </svg>
   );
 }
@@ -83,12 +128,15 @@ export function PhotoIcon({ size = 64, src }: P & { src?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <defs>
-        <clipPath id="ph-c"><rect x="8" y="8" width="48" height="48" rx="5" /></clipPath>
+        <clipPath id="ph-clip"><rect x="9" y="9" width="46" height="46" rx="4" /></clipPath>
       </defs>
-      <rect x="5" y="5" width="54" height="54" rx="8" fill="#fdfdfb" />
+      <Shadow />
+      <rect x="5" y="5" width="54" height="54" rx="8" fill="#fdfcf9" />
+      <rect x="5" y="5" width="54" height="54" rx="8" fill="none" stroke="#d6d1c6" strokeWidth="1" />
       {src
-        ? <image href={src} x="8" y="8" width="48" height="48" clipPath="url(#ph-c)" preserveAspectRatio="xMidYMid slice" />
-        : <rect x="8" y="8" width="48" height="48" rx="5" fill="#cfd4dd" />}
+        ? <image href={src} x="9" y="9" width="46" height="46" clipPath="url(#ph-clip)" preserveAspectRatio="xMidYMid slice" />
+        : <rect x="9" y="9" width="46" height="46" rx="4" fill="#cfd4dd" />}
+      <path d="M9 9h46v14c-14 6-32 5-46 0z" fill="#fff" opacity=".14" clipPath="url(#ph-clip)" />
     </svg>
   );
 }
@@ -97,20 +145,24 @@ export function MinesIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <defs>
-        <linearGradient id="ms-g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#e9e6df" /><stop offset="1" stopColor="#c9c5bb" />
+        <linearGradient id="ms-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f2efe8" /><stop offset="1" stopColor="#cdc8bc" />
         </linearGradient>
+        <radialGradient id="ms-ball" cx="0.35" cy="0.3">
+          <stop offset="0" stopColor="#54545e" /><stop offset="1" stopColor="#141418" />
+        </radialGradient>
       </defs>
-      <rect x="5" y="5" width="54" height="54" rx="10" fill="url(#ms-g)" />
-      <rect x="5" y="5" width="54" height="54" rx="10" fill="none" stroke="rgba(0,0,0,.16)" strokeWidth="1.5" />
-      <g fill="#1f1e1c">
-        <path d="M30.4 14h3.2v5h-3.2z" />
-        <path d="M17.6 19.4l2.3-2.3 3.5 3.5-2.3 2.3zM40.6 20.6l3.5-3.5 2.3 2.3-3.5 3.5z" />
-        <circle cx="32" cy="35" r="12" />
-        <path d="M12 33.4h5v3.2h-5zM47 33.4h5v3.2h-5z" />
-        <path d="M17.6 50.6l3.5-3.5 2.3 2.3-3.5 3.5zM43 47.1l3.5 3.5-2.3 2.3-3.5-3.5z" />
+      <Shadow />
+      <rect x="6" y="6" width="52" height="52" rx="11" fill="url(#ms-body)" />
+      <rect x="6" y="6" width="52" height="52" rx="11" fill="none" stroke="#b6b1a4" strokeWidth="1" />
+      <path d="M6 18a12 12 0 0 1 12-12h28a12 12 0 0 1 12 12z" fill="#fff" opacity=".5" />
+      <g fill="#1c1b1a">
+        <path d="M30.4 13.5h3.2v6h-3.2zM30.4 44.5h3.2v6h-3.2z" />
+        <path d="M13.5 30.4h6v3.2h-6zM44.5 30.4h6v3.2h-6z" />
+        <path d="M18.6 20.9l2.3-2.3 4.2 4.2-2.3 2.3zM39.2 41.5l2.3-2.3 4.2 4.2-2.3 2.3zM43.4 18.6l2.3 2.3-4.2 4.2-2.3-2.3zM22.8 39.2l2.3 2.3-4.2 4.2-2.3-2.3z" />
       </g>
-      <circle cx="27.6" cy="30.6" r="2.9" fill="#f2efe9" opacity=".9" />
+      <circle cx="32" cy="32" r="11.5" fill="url(#ms-ball)" />
+      <circle cx="27.8" cy="27.8" r="3" fill="#fff" opacity=".55" />
     </svg>
   );
 }
