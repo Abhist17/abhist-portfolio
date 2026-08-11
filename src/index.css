@@ -405,6 +405,103 @@
   font-family: var(--mono); font-size: 12.5px; color: #fff; caret-color: #6ee7a8;
 }
 
+/* ── chess ─────────────────────────────────── */
+.chess { display: grid; grid-template-columns: minmax(0,1fr) 216px; height: 100%; }
+.chess-main {
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px; min-width: 0; background: #edeae4;
+}
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: min(100%, 62vh); aspect-ratio: 1;
+  border-radius: 6px; overflow: hidden;
+  box-shadow: 0 12px 34px rgba(0,0,0,.28);
+}
+.sq {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(20px, 4.4vh, 40px); line-height: 1;
+  transition: background .16s ease;
+}
+.sq.light { background: #eeeada; }
+.sq.dark  { background: #7d9b76; }
+.sq.sel   { background: #c9d67a; }
+.sq.check { background: #e8956b; }
+.sq.mate  { background: #d4523c; }
+.pc { pointer-events: none; user-select: none; }
+.pc.w { color: #fdfdfb; text-shadow: 0 1px 0 #6b6b6b, 0 0 3px rgba(0,0,0,.5); }
+.pc.b { color: #1f1e1c; text-shadow: 0 1px 1px rgba(255,255,255,.22); }
+/* a dot for a quiet move, a ring for a capture */
+.sq.move::after {
+  content: ""; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%;
+  background: rgba(20,20,26,.26);
+}
+.sq.capture::after {
+  content: ""; position: absolute; inset: 6%; border-radius: 50%;
+  border: 3px solid rgba(20,20,26,.28);
+}
+.coord {
+  position: absolute; font-size: 8.5px; font-weight: 600; opacity: .55; letter-spacing: .04em;
+}
+.coord.rk { top: 2px; left: 3px; }
+.coord.fl { bottom: 1px; right: 4px; }
+.sq.light .coord { color: #6f7b62; }
+.sq.dark  .coord { color: #eeeada; }
+
+.promo {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  background: rgba(20,22,20,.72);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  color: #fff; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+}
+.promo-row { display: flex; gap: 8px; }
+.promo-row button {
+  width: 52px; height: 52px; border-radius: 9px; background: #eeeada;
+  font-size: 32px; display: flex; align-items: center; justify-content: center;
+  transition: transform .2s cubic-bezier(.22,1,.36,1);
+}
+.promo-row button:hover { transform: translateY(-3px); }
+
+.chess-side {
+  display: flex; flex-direction: column; gap: 13px;
+  padding: 15px 15px 16px; border-left: 1px solid var(--hair);
+  overflow: auto; min-width: 0;
+}
+.chess-status {
+  font-size: 12.5px; font-weight: 600; color: var(--ink);
+  padding: 8px 10px; border-radius: 8px; background: rgba(20,20,26,.05);
+}
+.chess-status.over { background: var(--accent); color: #fff; }
+.chess-field { display: flex; flex-direction: column; gap: 6px; }
+.seg { display: flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
+.seg button {
+  flex: 1; padding: 6px 4px; font-size: 11px; text-transform: capitalize;
+  color: var(--ink-soft); transition: background .2s ease, color .2s ease;
+}
+.seg button + button { border-left: 1px solid var(--hair); }
+.seg button.on { background: var(--ink); color: #fff; }
+.chess-moves { flex: 1; min-height: 60px; display: flex; flex-direction: column; gap: 6px; }
+.chess-moves ol {
+  list-style: none; overflow: auto; font-size: 11.5px;
+  font-variant-numeric: tabular-nums; color: var(--ink-soft);
+}
+.chess-moves li { display: grid; grid-template-columns: 26px 1fr 1fr; gap: 6px; padding: 2px 0; }
+.mv-no { color: var(--ink-mute); }
+.mv-empty { display: block; color: var(--ink-mute); }
+.chess-actions { display: flex; gap: 7px; }
+.chess-actions .btn { flex: 1; justify-content: center; padding: 8px 6px; font-size: 11px; }
+.btn.ghost { background: transparent; border: 1px solid var(--hair); color: var(--ink-soft); }
+.btn.ghost:hover { background: rgba(20,20,26,.05); color: var(--ink); }
+.btn:disabled { opacity: .4; pointer-events: none; }
+
+@media (max-width: 700px) {
+  .chess { grid-template-columns: 1fr; }
+  .chess-side { border-left: 0; border-top: 1px solid var(--hair); }
+  .board { width: min(100%, 86vw); }
+}
+
 /* ── dock ──────────────────────────────────── */
 .dock-wrap {
   position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);

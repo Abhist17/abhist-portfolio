@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense } from "react";
 import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
 import { SocialIcon } from "./icons";
 import type { AppId } from "./system";
@@ -334,11 +335,19 @@ function TerminalApp({ open }: { open: (id: AppId) => void }) {
   );
 }
 
+/* the engine only loads when someone actually opens the board */
+const ChessApp = lazy(() => import("./games/ChessApp"));
+
 /* ═════════════════════════════════════════════
    REGISTRY
 ═════════════════════════════════════════════ */
 export function AppBody({ id, open }: { id: AppId; open: (a: AppId) => void }) {
   switch (id) {
+    case "chess": return (
+      <Suspense fallback={<div className="doc"><p className="muted">Loading engine…</p></div>}>
+        <ChessApp />
+      </Suspense>
+    );
     case "about":      return <AboutApp />;
     case "projects":   return <ProjectsApp />;
     case "background": return <BackgroundApp />;
