@@ -142,7 +142,7 @@ export function DesktopIcons() {
           onClick={() => setSel(a.id)}
           onDoubleClick={() => open(a.id)}
           aria-label={`${a.name} — double-click to open`}>
-          <span className="icon-art"><AppIcon kind={a.kind} size={70} src={ME.avatar} /></span>
+          <span className="icon-art"><AppIcon kind={a.kind} size={84} src={ME.avatar} /></span>
           <span className="icon-label">{a.name}</span>
         </button>
       ))}

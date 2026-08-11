@@ -10,12 +10,13 @@ import { BootScreen } from "@/os/boot";
 
 /* Paints the chosen wallpaper by swapping the sky tokens. */
 function Wallpaper({ children, phone }: { children: React.ReactNode; phone: boolean }) {
-  const { theme } = useSystem();
+  const { theme, windows } = useSystem();
+  const hasWindow = windows.some(w => !w.minimised);
   const t = THEMES.find(x => x.id === theme) ?? THEMES[0];
 
   return (
     <div
-      className={`os ${phone ? "os-phone" : ""}`}
+      className={`os ${phone ? "os-phone" : ""} ${hasWindow ? "has-window" : ""}`}
       style={{
         ["--sky-0" as string]: t.sky[0],
         ["--sky-1" as string]: t.sky[1],

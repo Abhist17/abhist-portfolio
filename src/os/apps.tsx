@@ -4,6 +4,16 @@ import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
 import { SocialIcon } from "./icons";
 import type { AppId } from "./system";
 
+/* Every app opens with its own title, the way a real app does. */
+function AppHead({ title, sub }: { title: string; sub: string }) {
+  return (
+    <header className="app-head">
+      <h2>{title}</h2>
+      <p>{sub}</p>
+    </header>
+  );
+}
+
 /* ═════════════════════════════════════════════
    ABOUT — a text document
 ═════════════════════════════════════════════ */
@@ -38,7 +48,9 @@ function ProjectsApp() {
   const p = PROJECTS[sel];
 
   return (
-    <div className="finder">
+    <div className="app">
+      <AppHead title="Projects" sub={`${PROJECTS.length} repositories · ${PROJECTS.filter(x => x.done).length} shipped`} />
+      <div className="finder">
       <div className="finder-list" role="listbox" aria-label="Projects">
         <div className="finder-cols">
           <span>Name</span><span>Stack</span><span>Status</span>
@@ -80,6 +92,7 @@ function ProjectsApp() {
         </a>
         <p className="hint">Double-click a row to open it directly.</p>
       </aside>
+      </div>
     </div>
   );
 }
@@ -89,7 +102,9 @@ function ProjectsApp() {
 ═════════════════════════════════════════════ */
 function BackgroundApp() {
   return (
-    <div className="doc">
+    <div className="app">
+      <AppHead title="Background" sub={`${EXP.length} roles & education`} />
+      <div className="doc" style={{ overflow: "auto" }}>
       {EXP.map(e => (
         <a className="exp" key={e.org} href={e.link} target="_blank" rel="noreferrer">
           <span className="exp-period muted">{e.period}</span>
@@ -103,6 +118,7 @@ function BackgroundApp() {
           </svg>
         </a>
       ))}
+      </div>
     </div>
   );
 }
@@ -111,8 +127,11 @@ function BackgroundApp() {
    STACK
 ═════════════════════════════════════════════ */
 function StackApp() {
+  const total = Object.values(SKILLS).flat().length;
   return (
-    <div className="doc">
+    <div className="app">
+      <AppHead title="Stack" sub={`${total} tools across ${Object.keys(SKILLS).length} areas`} />
+      <div className="doc" style={{ overflow: "auto" }}>
       {Object.entries(SKILLS).map(([cat, items]) => (
         <section className="stack-group" key={cat}>
           <p className="kicker">{cat}</p>
@@ -121,6 +140,7 @@ function StackApp() {
           </div>
         </section>
       ))}
+      </div>
     </div>
   );
 }
@@ -134,7 +154,9 @@ const GLYPH_FOR: Record<string, "github" | "twitter" | "linkedin" | "mail"> = {
 
 function ContactApp() {
   return (
-    <div className="doc">
+    <div className="app">
+      <AppHead title="Contact" sub={`${SOCIALS.length} ways to reach me`} />
+      <div className="doc" style={{ overflow: "auto" }}>
       <p className="doc-p">
         Have a project? Say hello — I read everything.
       </p>
@@ -156,6 +178,7 @@ function ContactApp() {
         })}
       </div>
       <p className="hint">Based in {ME.location} · {ME.status}</p>
+      </div>
     </div>
   );
 }
