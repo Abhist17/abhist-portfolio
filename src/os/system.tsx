@@ -10,7 +10,7 @@ import type { ThemeId } from "./data";
 ═════════════════════════════════════════════ */
 
 export type AppId =
-  | "about" | "projects" | "background" | "stack" | "contact" | "terminal" | "photo" | "chess";
+  | "about" | "projects" | "background" | "stack" | "contact" | "terminal" | "photo" | "mines";
 
 export type WinState = {
   id: AppId;
@@ -27,7 +27,7 @@ export type AppMeta = {
   id: AppId;
   name: string;
   /* what the icon looks like on the desktop */
-  kind: "folder" | "doc" | "terminal" | "mail" | "grid" | "photo" | "chess";
+  kind: "folder" | "doc" | "terminal" | "mail" | "grid" | "photo" | "mines";
   w: number;
   h: number;
   /* desktop icon slot */
@@ -43,7 +43,7 @@ export const APPS: AppMeta[] = [
   { id: "terminal",   name: "Terminal",   kind: "terminal", w: 680, h: 440, slot: 3, onDesktop: true,  inDock: true  },
   { id: "stack",      name: "Stack",      kind: "grid",     w: 600, h: 460, slot: 4, onDesktop: true,  inDock: true  },
   { id: "contact",    name: "Contact",    kind: "mail",     w: 560, h: 420, slot: 5, onDesktop: true,  inDock: true  },
-  { id: "chess",      name: "Chess",      kind: "chess",    w: 830, h: 600, slot: 6, onDesktop: true,  inDock: true  },
+  { id: "mines",      name: "Minesweeper", kind: "mines",   w: 640, h: 660, slot: 6, onDesktop: true,  inDock: true  },
   { id: "photo",      name: "Me.jpg",     kind: "photo",    w: 460, h: 560, slot: 7, onDesktop: true,  inDock: false },
 ];
 

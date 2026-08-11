@@ -93,30 +93,31 @@ export function PhotoIcon({ size = 64, src }: P & { src?: string }) {
   );
 }
 
-export function ChessIcon({ size = 64 }: P) {
+export function MinesIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <rect x="5" y="5" width="54" height="54" rx="9" fill="#f2efe9" />
-      {[0, 1, 2, 3, 4, 5].map(r => [0, 1, 2, 3, 4, 5].map(c => (
-        (r + c) % 2 === 1
-          ? <rect key={`${r}-${c}`} x={5 + c * 9} y={5 + r * 9} width="9" height="9" fill="#3b3a38" opacity=".9" />
-          : null
-      )))}
-      <rect x="5" y="5" width="54" height="54" rx="9" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
-      {/* a knight silhouette sitting on the board */}
-      <g transform="translate(20 14)">
-        <path d="M11 3c-2.4 0-4 1-5.4 2.6L3 9l2.6 1.3-1.6 2.4 2.6.5-1.1 2.6c-.6 1.4-.4 2.6.5 3.6h13c.9-3.6.4-7.6-1.6-10.9C15.9 5 13.7 3 11 3z"
-          fill="#1c1b1a" />
-        <circle cx="8.6" cy="8.4" r="1" fill="#f2efe9" />
-        <rect x="2.4" y="19.4" width="17" height="3" rx="1.5" fill="#1c1b1a" />
+      <defs>
+        <linearGradient id="ms-g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e9e6df" /><stop offset="1" stopColor="#c9c5bb" />
+        </linearGradient>
+      </defs>
+      <rect x="5" y="5" width="54" height="54" rx="10" fill="url(#ms-g)" />
+      <rect x="5" y="5" width="54" height="54" rx="10" fill="none" stroke="rgba(0,0,0,.16)" strokeWidth="1.5" />
+      <g fill="#1f1e1c">
+        <path d="M30.4 14h3.2v5h-3.2z" />
+        <path d="M17.6 19.4l2.3-2.3 3.5 3.5-2.3 2.3zM40.6 20.6l3.5-3.5 2.3 2.3-3.5 3.5z" />
+        <circle cx="32" cy="35" r="12" />
+        <path d="M12 33.4h5v3.2h-5zM47 33.4h5v3.2h-5z" />
+        <path d="M17.6 50.6l3.5-3.5 2.3 2.3-3.5 3.5zM43 47.1l3.5 3.5-2.3 2.3-3.5-3.5z" />
       </g>
+      <circle cx="27.6" cy="30.6" r="2.9" fill="#f2efe9" opacity=".9" />
     </svg>
   );
 }
 
 export function AppIcon({ kind, size = 64, src }: { kind: string; size?: number; src?: string }) {
   switch (kind) {
-    case "chess":    return <ChessIcon size={size} />;
+    case "mines":    return <MinesIcon size={size} />;
     case "folder":   return <FolderIcon size={size} />;
     case "doc":      return <DocIcon size={size} />;
     case "terminal": return <TerminalIcon size={size} />;

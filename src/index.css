@@ -405,101 +405,88 @@
   font-family: var(--mono); font-size: 12.5px; color: #fff; caret-color: #6ee7a8;
 }
 
-/* ── chess ─────────────────────────────────── */
-.chess { display: grid; grid-template-columns: minmax(0,1fr) 216px; height: 100%; }
-.chess-main {
-  display: flex; align-items: center; justify-content: center;
-  padding: 16px; min-width: 0; background: #edeae4;
+/* ── minesweeper ───────────────────────────── */
+.mines { display: flex; flex-direction: column; height: 100%; background: #edeae4; }
+.mines-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px 0;
 }
-.board {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  width: min(100%, 62vh); aspect-ratio: 1;
-  border-radius: 6px; overflow: hidden;
-  box-shadow: 0 12px 34px rgba(0,0,0,.28);
+.mines-flag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 8px; font-size: 11px;
+  border: 1px solid var(--hair); color: var(--ink-soft);
+  transition: background .2s ease, color .2s ease;
 }
-.sq {
-  position: relative; display: flex; align-items: center; justify-content: center;
-  font-size: clamp(20px, 4.4vh, 40px); line-height: 1;
-  transition: background .16s ease;
-}
-.sq.light { background: #eeeada; }
-.sq.dark  { background: #7d9b76; }
-.sq.sel   { background: #c9d67a; }
-.sq.check { background: #e8956b; }
-.sq.mate  { background: #d4523c; }
-.pc { pointer-events: none; user-select: none; }
-.pc.w { color: #fdfdfb; text-shadow: 0 1px 0 #6b6b6b, 0 0 3px rgba(0,0,0,.5); }
-.pc.b { color: #1f1e1c; text-shadow: 0 1px 1px rgba(255,255,255,.22); }
-/* a dot for a quiet move, a ring for a capture */
-.sq.move::after {
-  content: ""; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%;
-  background: rgba(20,20,26,.26);
-}
-.sq.capture::after {
-  content: ""; position: absolute; inset: 6%; border-radius: 50%;
-  border: 3px solid rgba(20,20,26,.28);
-}
-.coord {
-  position: absolute; font-size: 8.5px; font-weight: 600; opacity: .55; letter-spacing: .04em;
-}
-.coord.rk { top: 2px; left: 3px; }
-.coord.fl { bottom: 1px; right: 4px; }
-.sq.light .coord { color: #6f7b62; }
-.sq.dark  .coord { color: #eeeada; }
+.mines-flag.on { background: var(--accent); color: #fff; border-color: transparent; }
 
-.promo {
-  position: absolute; inset: 0; z-index: 5;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  background: rgba(20,22,20,.72);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  color: #fff; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+.mines-hud {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 12px 14px 0; padding: 8px 12px;
+  background: #1f1e1c; border-radius: 9px; color: #f2efe9;
 }
-.promo-row { display: flex; gap: 8px; }
-.promo-row button {
-  width: 52px; height: 52px; border-radius: 9px; background: #eeeada;
-  font-size: 32px; display: flex; align-items: center; justify-content: center;
+.hud-num {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 600;
+  letter-spacing: .04em; min-width: 62px;
+}
+.hud-num:last-child { justify-content: flex-end; }
+.mines-face {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: #f2efe9; color: #1f1e1c; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
   transition: transform .2s cubic-bezier(.22,1,.36,1);
 }
-.promo-row button:hover { transform: translateY(-3px); }
+.mines-face:hover { transform: scale(1.08); }
+.mines-face.won  { background: #2fbf5f; color: #fff; }
+.mines-face.lost { background: var(--accent); color: #fff; }
 
-.chess-side {
-  display: flex; flex-direction: column; gap: 13px;
-  padding: 15px 15px 16px; border-left: 1px solid var(--hair);
-  overflow: auto; min-width: 0;
+.mines-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 14px; }
+/* the board fits whichever axis runs out first, so it never pushes the
+   HUD or the hint line out of the window */
+.grid {
+  display: grid; gap: 2px;
+  aspect-ratio: var(--ar, 1);
+  height: 100%; width: auto;
+  max-width: 100%; max-height: 100%;
+  background: #c2beb4; padding: 4px; border-radius: 7px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.18);
 }
-.chess-status {
-  font-size: 12.5px; font-weight: 600; color: var(--ink);
-  padding: 8px 10px; border-radius: 8px; background: rgba(20,20,26,.05);
+.ms {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; font-size: clamp(9px, 2.1vh, 15px); font-weight: 700;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  transition: background .12s ease;
 }
-.chess-status.over { background: var(--accent); color: #fff; }
-.chess-field { display: flex; flex-direction: column; gap: 6px; }
+.ms.closed {
+  background: linear-gradient(180deg, #fbfaf7, #ddd9d0);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.12);
+  color: var(--accent);
+}
+.ms.closed:hover { background: linear-gradient(180deg, #fff, #e9e5dc); }
+.ms.open { background: #e2ded4; }
+.ms.bomb { background: #d9d4c8; color: #1f1e1c; }
+.ms.boom { background: var(--accent); color: #fff; }
+.grid.won .ms.flag, .grid.lost .ms.flag { opacity: .85; }
+
+.mines-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 14px 14px; font-size: 11px; color: var(--ink-mute);
+}
+.mines-foot .win  { color: #2f8f4f; font-size: 12.5px; }
+.mines-foot .lose { color: var(--accent); font-size: 12.5px; }
+.mines-best { margin-left: auto; }
+
 .seg { display: flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
 .seg button {
-  flex: 1; padding: 6px 4px; font-size: 11px; text-transform: capitalize;
+  flex: 1; padding: 6px 12px; font-size: 11px; white-space: nowrap;
   color: var(--ink-soft); transition: background .2s ease, color .2s ease;
 }
 .seg button + button { border-left: 1px solid var(--hair); }
 .seg button.on { background: var(--ink); color: #fff; }
-.chess-moves { flex: 1; min-height: 60px; display: flex; flex-direction: column; gap: 6px; }
-.chess-moves ol {
-  list-style: none; overflow: auto; font-size: 11.5px;
-  font-variant-numeric: tabular-nums; color: var(--ink-soft);
-}
-.chess-moves li { display: grid; grid-template-columns: 26px 1fr 1fr; gap: 6px; padding: 2px 0; }
-.mv-no { color: var(--ink-mute); }
-.mv-empty { display: block; color: var(--ink-mute); }
-.chess-actions { display: flex; gap: 7px; }
-.chess-actions .btn { flex: 1; justify-content: center; padding: 8px 6px; font-size: 11px; }
-.btn.ghost { background: transparent; border: 1px solid var(--hair); color: var(--ink-soft); }
-.btn.ghost:hover { background: rgba(20,20,26,.05); color: var(--ink); }
-.btn:disabled { opacity: .4; pointer-events: none; }
 
-@media (max-width: 700px) {
-  .chess { grid-template-columns: 1fr; }
-  .chess-side { border-left: 0; border-top: 1px solid var(--hair); }
-  .board { width: min(100%, 86vw); }
+@media (max-width: 620px) {
+  .mines-bar { flex-direction: column; align-items: stretch; }
+  .ms { font-size: 12px; }
 }
 
 /* ── dock ──────────────────────────────────── */

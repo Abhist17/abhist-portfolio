@@ -335,17 +335,17 @@ function TerminalApp({ open }: { open: (id: AppId) => void }) {
   );
 }
 
-/* the engine only loads when someone actually opens the board */
-const ChessApp = lazy(() => import("./games/ChessApp"));
+/* the game only loads when someone actually opens it */
+const MinesApp = lazy(() => import("./games/MinesApp"));
 
 /* ═════════════════════════════════════════════
    REGISTRY
 ═════════════════════════════════════════════ */
 export function AppBody({ id, open }: { id: AppId; open: (a: AppId) => void }) {
   switch (id) {
-    case "chess": return (
-      <Suspense fallback={<div className="doc"><p className="muted">Loading engine…</p></div>}>
-        <ChessApp />
+    case "mines": return (
+      <Suspense fallback={<div className="doc"><p className="muted">Loading…</p></div>}>
+        <MinesApp />
       </Suspense>
     );
     case "about":      return <AboutApp />;
