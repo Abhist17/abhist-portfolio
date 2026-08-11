@@ -3,6 +3,8 @@ import { AnimatePresence, motion, useDragControls } from "framer-motion";
 import { ME, SOCIALS, STATS, THEMES, PROJECTS, SKILLS } from "./data";
 import { AppIcon, SocialIcon } from "./icons";
 import { AppBody } from "./apps";
+import { CONFIG } from "./config";
+import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
 import {
   APPS, appMeta, fmtDate, fmtTime, useClock, useSystem, type AppId, type WinState,
 } from "./system";
@@ -182,6 +184,10 @@ export function Intro() {
 ═════════════════════════════════════════════ */
 export function Widgets() {
   const { theme, setTheme, open } = useSystem();
+  const gh   = useGitHub();
+  const act  = useGitHubActivity();
+  const wx   = useWeather();
+  const cf   = useCodeforces();
 
   return (
     <motion.aside className="widgets"
@@ -204,11 +210,61 @@ export function Widgets() {
         </div>
       </div>
 
-      <div className="w-card w-status">
-        <p className="w-kicker">Status</p>
-        <p className="w-big"><span className="w-dot" />{ME.status}</p>
-        <p className="w-sub">{ME.location} · {ME.handle}</p>
+      <div className="w-row">
+        <div className="w-card w-status">
+          <p className="w-kicker">Status</p>
+          <p className="w-big"><span className="w-dot" />Open</p>
+          <p className="w-sub">{ME.status}</p>
+        </div>
+
+        {/* live weather — hidden entirely if the call fails */}
+        {(wx.data || wx.loading) && (
+          <div className="w-card">
+            <p className="w-kicker">{CONFIG.place.name}</p>
+            {wx.data ? (
+              <>
+                <p className="w-big">{wx.data.temp}°</p>
+                <p className="w-sub">{weatherText(wx.data.code)} · {wx.data.wind} km/h</p>
+              </>
+            ) : <p className="w-sub">…</p>}
+          </div>
+        )}
       </div>
+
+      {/* live GitHub */}
+      {(gh.data || gh.loading) && (
+        <button className="w-card w-gh" onClick={() => open("projects")}>
+          <p className="w-kicker">GitHub · {CONFIG.github}</p>
+          {gh.data ? (
+            <>
+              <div className="w-stats">
+                <div><strong>{gh.data.repos}</strong><span>repos</span></div>
+                <div><strong>{gh.data.stars}</strong><span>stars</span></div>
+                <div><strong>{PROJECTS.length}</strong><span>featured</span></div>
+              </div>
+              {act.data && (
+                <>
+                  <div className="spark" aria-label="Recent public activity">
+                    {act.data.map((n, i) => (
+                      <span key={i} className="spark-b" style={{ opacity: n ? Math.min(1, 0.3 + n * 0.18) : 0.1 }} />
+                    ))}
+                  </div>
+                  <p className="w-sub">last 21 days of public activity</p>
+                </>
+              )}
+            </>
+          ) : <p className="w-sub">loading…</p>}
+        </button>
+      )}
+
+      {/* competitive programming — only once a handle is configured */}
+      {cf.data && (
+        <a className="w-card" href={`https://codeforces.com/profile/${CONFIG.codeforces}`} target="_blank" rel="noreferrer">
+          <p className="w-kicker">Codeforces</p>
+          <p className="w-big">{cf.data.rating ?? "—"}</p>
+          <p className="w-sub">{cf.data.rank ?? "unrated"}{cf.data.maxRating ? ` · peak ${cf.data.maxRating}` : ""}</p>
+        </a>
+      )}
 
       <div className="w-card">
         <p className="w-kicker">By the numbers</p>
@@ -218,12 +274,6 @@ export function Widgets() {
           ))}
         </div>
       </div>
-
-      <button className="w-card w-repos" onClick={() => open("projects")}>
-        <p className="w-kicker">Repositories</p>
-        <p className="w-big">{PROJECTS.length}</p>
-        <p className="w-sub">{PROJECTS.filter(p => p.done).length} shipped · {PROJECTS.filter(p => !p.done).length} in progress</p>
-      </button>
     </motion.aside>
   );
 }

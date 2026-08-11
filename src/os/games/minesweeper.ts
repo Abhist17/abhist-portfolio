@@ -113,7 +113,7 @@ function checkWin(g: Game): Game {
 export function reveal(game: Game, i: number): Game {
   if (game.status === "won" || game.status === "lost") return game;
 
-  let g: Game = game.status === "idle"
+  const g: Game = game.status === "idle"
     ? { ...layMines(game, i), status: "playing" }
     : { ...game, cells: game.cells.map(c => ({ ...c })) };
 

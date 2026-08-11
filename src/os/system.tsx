@@ -49,7 +49,11 @@ export const APPS: AppMeta[] = [
 
 export const appMeta = (id: AppId) => APPS.find(a => a.id === id)!;
 
+export type Phase = "boot" | "lock" | "desktop";
+
 type SystemCtx = {
+  phase: Phase;
+  setPhase: (p: Phase) => void;
   booted: boolean;
   boot: () => void;
   windows: WinState[];
@@ -90,8 +94,13 @@ function spawn(id: AppId, count: number): WinState {
   };
 }
 
+const SEEN_BOOT = "abhistos.booted";
+
 export function System({ children }: { children: React.ReactNode }) {
-  const [booted, setBooted] = useState(false);
+  /* the kernel log plays once per tab; coming back lands on the lock screen */
+  const [phase, setPhase] = useState<Phase>(() => {
+    try { return sessionStorage.getItem(SEEN_BOOT) ? "lock" : "boot"; } catch { return "boot"; }
+  });
   const [windows, setWindows] = useState<WinState[]>([]);
   const [theme, setTheme] = useState<ThemeId>("midnight");
   const zRef = useRef(1);
@@ -157,7 +166,13 @@ export function System({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value: SystemCtx = {
-    booted, boot: () => setBooted(true),
+    phase,
+    setPhase: (p: Phase) => {
+      if (p !== "boot") { try { sessionStorage.setItem(SEEN_BOOT, "1"); } catch { /* ignore */ } }
+      setPhase(p);
+    },
+    booted: phase === "desktop",
+    boot: () => setPhase("desktop"),
     windows, open, close, focus, minimise, zoom, move, isOpen, topId,
     theme, setTheme,
   };

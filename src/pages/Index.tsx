@@ -6,6 +6,7 @@ import {
   Dock, DesktopIcons, Intro, LockScreen, MenuBar, Widgets, Windows,
 } from "@/os/desktop";
 import { Springboard } from "@/os/mobile";
+import { BootScreen } from "@/os/boot";
 
 /* Paints the chosen wallpaper by swapping the sky tokens. */
 function Wallpaper({ children, phone }: { children: React.ReactNode; phone: boolean }) {
@@ -27,7 +28,7 @@ function Wallpaper({ children, phone }: { children: React.ReactNode; phone: bool
 }
 
 function Shell() {
-  const { booted } = useSystem();
+  const { phase, setPhase } = useSystem();
   const phone = useIsPhone();
 
   /* the desktop owns the viewport; the phone layout scrolls normally */
@@ -35,6 +36,9 @@ function Shell() {
     document.body.classList.toggle("is-phone", phone);
     return () => document.body.classList.remove("is-phone");
   }, [phone]);
+
+  /* phones skip the kernel log and land straight on the springboard */
+  useEffect(() => { if (phone && phase === "boot") setPhase("lock"); }, [phone, phase, setPhase]);
 
   if (phone) {
     return (
@@ -46,9 +50,12 @@ function Shell() {
 
   return (
     <Wallpaper phone={false}>
-      <AnimatePresence>{!booted && <LockScreen key="lock" />}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        {phase === "boot" && <BootScreen key="boot" />}
+        {phase === "lock" && <LockScreen key="lock" />}
+      </AnimatePresence>
 
-      {booted && (
+      {phase === "desktop" && (
         <>
           <MenuBar />
           <div className="surface">
