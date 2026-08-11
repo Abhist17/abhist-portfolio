@@ -30,16 +30,12 @@ export function LockScreen() {
       exit={{ opacity: 0, scale: 1.06, filter: "blur(12px)" }}
       transition={{ duration: 0.8, ease: EASE }}>
 
-      <motion.div className="lock-clock"
-        initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease: EASE }}>
+      <div className="lock-clock anim-drop">
         <p className="lock-date">{fmtDate(now)}</p>
         <p className="lock-time">{fmtTime(now)}</p>
-      </motion.div>
+      </div>
 
-      <motion.div className="lock-id"
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.15, ease: EASE }}>
+      <div className="lock-id anim-rise" style={{ animationDelay: "0.15s" }}>
         <img className="lock-avatar" src={ME.avatar} alt="" />
         <p className="lock-name">{ME.name}</p>
         <p className="lock-role">{ME.role}</p>
@@ -49,7 +45,7 @@ export function LockScreen() {
           </svg>
           Click to unlock
         </span>
-      </motion.div>
+      </div>
 
       <p className="lock-hint">Click anywhere to unlock</p>
     </motion.div>
@@ -139,18 +135,16 @@ export function DesktopIcons() {
   return (
     <div className="icons" onClick={e => { if (e.target === e.currentTarget) setSel(null); }}>
       {APPS.filter(a => a.onDesktop).map((a, i) => (
-        <motion.button
+        <button
           key={a.id}
-          className={`icon ${sel === a.id ? "is-sel" : ""}`}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 + i * 0.05, ease: EASE }}
+          className={`icon anim-pop ${sel === a.id ? "is-sel" : ""}`}
+          style={{ animationDelay: `${0.2 + i * 0.05}s` }}
           onClick={() => setSel(a.id)}
           onDoubleClick={() => open(a.id)}
           aria-label={`${a.name} — double-click to open`}>
-          <span className="icon-art"><AppIcon kind={a.kind} size={60} src={ME.avatar} /></span>
+          <span className="icon-art"><AppIcon kind={a.kind} size={70} src={ME.avatar} /></span>
           <span className="icon-label">{a.name}</span>
-        </motion.button>
+        </button>
       ))}
     </div>
   );
@@ -162,9 +156,7 @@ export function DesktopIcons() {
 export function Intro() {
   const { open } = useSystem();
   return (
-    <motion.div className="intro"
-      initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.2, ease: EASE }}>
+    <div className="intro anim-rise" style={{ animationDelay: "0.1s" }}>
       <img className="intro-avatar" src={ME.avatar} alt={ME.name} />
       <div className="intro-text">
         <p className="intro-kicker">{ME.role}</p>
@@ -176,7 +168,7 @@ export function Intro() {
           </svg>
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -191,9 +183,7 @@ export function Widgets() {
   const cf   = useCodeforces();
 
   return (
-    <motion.aside className="widgets"
-      initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.7, delay: 0.3, ease: EASE }}>
+    <aside className="widgets anim-slide" style={{ animationDelay: "0.2s" }}>
 
       <div className="w-card w-theme">
         <p className="w-kicker">Choose a theme</p>
@@ -275,7 +265,7 @@ export function Widgets() {
           ))}
         </div>
       </div>
-    </motion.aside>
+    </aside>
   );
 }
 
@@ -387,9 +377,7 @@ export function Dock() {
   const mouseX = useMotionValue<number | null>(null);
 
   return (
-    <motion.div className="dock-wrap"
-      initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.45, ease: EASE }}>
+    <div className="dock-wrap anim-rise" style={{ animationDelay: "0.35s" }}>
       <p className="dock-kicker">Tech stack</p>
       <div
         className="dock"
@@ -399,6 +387,6 @@ export function Dock() {
           <DockTile key={t.id} tool={t} mouseX={mouseX} onOpen={() => open("stack")} />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

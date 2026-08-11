@@ -83,6 +83,24 @@
   min-height: 100%;
 }
 
+/* Entrance animations are CSS, not JS-driven: `both` fill mode guarantees
+   the element ends in its final state even if frames are throttled,
+   dropped or the tab was backgrounded during the animation. Content must
+   never be left stranded at opacity 0. */
+@keyframes riseIn  { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes dropIn  { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes popIn   { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+
+.anim-rise  { animation: riseIn  .8s cubic-bezier(.22,1,.36,1) both; }
+.anim-drop  { animation: dropIn  .8s cubic-bezier(.22,1,.36,1) both; }
+.anim-slide { animation: slideIn .8s cubic-bezier(.22,1,.36,1) both; }
+.anim-pop   { animation: popIn   .55s cubic-bezier(.22,1,.36,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-drop, .anim-slide, .anim-pop { animation: none; }
+}
+
 /* ── lock screen ───────────────────────────── */
 .lock {
   position: absolute; inset: 0; z-index: 400;
@@ -194,20 +212,20 @@
 .surface {
   position: absolute; inset: var(--bar-h) 0 0 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 24px;
-  padding: 26px 22px 0;
+  grid-template-columns: minmax(0, 1fr) 312px;
+  gap: 28px;
+  padding: 34px 26px 0;
 }
-.surface-main { min-width: 0; display: flex; flex-direction: column; gap: 30px; }
+.surface-main { min-width: 0; display: flex; flex-direction: column; gap: 42px; }
 
 /* intro */
 .intro { display: flex; gap: 22px; align-items: flex-start; max-width: 620px; }
 .intro-avatar {
-  width: 96px; height: 96px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  width: 108px; height: 108px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
   border: 2px solid rgba(255,255,255,.5);
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
-.intro-text { color: #fff; font-size: 13.5px; line-height: 1.62; text-shadow: 0 1px 12px rgba(0,0,0,.3); }
+.intro-text { color: #fff; font-size: 14px; line-height: 1.66; text-shadow: 0 1px 12px rgba(0,0,0,.3); }
 .intro-kicker {
   font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
   font-weight: 600; margin-bottom: 8px; opacity: .9;
@@ -224,23 +242,25 @@
 /* desktop icons */
 .icons {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 112px);
-  gap: 14px 4px;
+  grid-template-columns: repeat(4, 132px);
+  gap: 30px 10px;
   align-content: start;
+  justify-content: start;
   flex: 1;
   min-height: 0;
 }
 .icon {
-  display: flex; flex-direction: column; align-items: center; gap: 7px;
-  padding: 9px 6px; border-radius: 9px;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  padding: 12px 8px; border-radius: 11px;
   border: 1px solid transparent;
   transition: background .18s ease, border-color .18s ease;
 }
 .icon:hover { background: rgba(255,255,255,.12); }
 .icon.is-sel { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.35); }
-.icon-art { filter: drop-shadow(0 6px 12px rgba(0,0,0,.32)); line-height: 0; }
+.icon-art { filter: drop-shadow(0 8px 16px rgba(0,0,0,.34)); line-height: 0; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.icon:hover .icon-art { transform: translateY(-3px) scale(1.04); }
 .icon-label {
-  font-size: 11.5px; color: #fff; text-align: center; line-height: 1.3;
+  font-size: 12.5px; color: #fff; text-align: center; line-height: 1.3;
   padding: 1px 6px; border-radius: 4px;
   text-shadow: 0 1px 4px rgba(0,0,0,.55);
 }
@@ -249,9 +269,9 @@
 /* ── widgets ───────────────────────────────── */
 .widgets { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-bottom: 130px; }
 .w-card {
-  background: rgba(255,255,255,.62);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
   border: 1px solid rgba(255,255,255,.55);
   border-radius: 15px;
   padding: 14px 16px;
@@ -260,10 +280,10 @@
 }
 .w-kicker {
   font-size: 9.5px; letter-spacing: .19em; text-transform: uppercase;
-  color: var(--ink-mute); font-weight: 600; margin-bottom: 9px;
+  color: #6b6b74; font-weight: 600; margin-bottom: 9px;
 }
 .w-big { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 9px; }
-.w-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 5px; }
+.w-sub { font-size: 11.5px; color: #4a4a52; margin-top: 5px; }
 .w-dot {
   width: 7px; height: 7px; border-radius: 50%; background: #2fbf5f;
   box-shadow: 0 0 0 3px rgba(47,191,95,.22);
@@ -279,7 +299,7 @@
 .swatch.is-on { outline: 2px solid var(--ink); outline-offset: 2px; }
 .w-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .w-stats strong { display: block; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
-.w-stats span { font-size: 10px; color: var(--ink-mute); letter-spacing: .04em; }
+.w-stats span { font-size: 10px; color: #6b6b74; letter-spacing: .04em; }
 
 /* two small cards side by side */
 .w-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -289,8 +309,8 @@
 .w-gh:hover { transform: translateY(-2px); }
 
 /* recent-activity strip */
-.spark { display: flex; gap: 3px; align-items: flex-end; margin-top: 11px; height: 22px; }
-.spark-b { flex: 1; height: 100%; border-radius: 2px; background: var(--accent); }
+.spark { display: flex; gap: 3px; align-items: flex-end; margin-top: 12px; height: 20px; }
+.spark-b { flex: 1; height: 100%; border-radius: 2px; background: #2f8f4f; }
 .w-repos { cursor: pointer; transition: transform .25s cubic-bezier(.22,1,.36,1); }
 .w-repos:hover { transform: translateY(-2px); }
 
