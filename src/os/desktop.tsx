@@ -6,6 +6,7 @@ import { AppBody } from "./apps";
 import { CONFIG } from "./config";
 import { TOOLS, ToolIcon, type Tool } from "./tech";
 import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
+import { NowPlaying } from "./music";
 import {
   APPS, appMeta, fmtDate, fmtTime, useClock, useSystem, type AppId, type WinState,
 } from "./system";
@@ -201,26 +202,20 @@ export function Widgets() {
         </div>
       </div>
 
-      <div className="w-row">
-        <div className="w-card w-status">
-          <p className="w-kicker">Status</p>
-          <p className="w-big"><span className="w-dot" />Open</p>
-          <p className="w-sub">{ME.status}</p>
+      {/* live weather — hidden entirely if the call fails */}
+      {(wx.data || wx.loading) && (
+        <div className="w-card w-weather">
+          <p className="w-kicker">{CONFIG.place.name} <span className="w-avail"><span className="w-dot" />{ME.status}</span></p>
+          {wx.data ? (
+            <>
+              <p className="w-temp">{wx.data.temp}°</p>
+              <p className="w-sub">{weatherText(wx.data.code)} · {wx.data.wind} km/h</p>
+            </>
+          ) : <p className="w-sub">…</p>}
         </div>
+      )}
 
-        {/* live weather — hidden entirely if the call fails */}
-        {(wx.data || wx.loading) && (
-          <div className="w-card">
-            <p className="w-kicker">{CONFIG.place.name}</p>
-            {wx.data ? (
-              <>
-                <p className="w-big">{wx.data.temp}°</p>
-                <p className="w-sub">{weatherText(wx.data.code)} · {wx.data.wind} km/h</p>
-              </>
-            ) : <p className="w-sub">…</p>}
-          </div>
-        )}
-      </div>
+      <NowPlaying />
 
       {/* live GitHub */}
       {(gh.data || gh.loading) && (

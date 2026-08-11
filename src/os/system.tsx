@@ -41,7 +41,7 @@ export const APPS: AppMeta[] = [
   { id: "about",      name: "About Me",   kind: "doc",      w: 620, h: 480, slot: 1, onDesktop: true,  inDock: true  },
   { id: "background", name: "Background", kind: "folder",   w: 720, h: 460, slot: 2, onDesktop: true,  inDock: true  },
   { id: "terminal",   name: "Terminal",   kind: "terminal", w: 680, h: 440, slot: 3, onDesktop: true,  inDock: true  },
-  { id: "stack",      name: "Stack",      kind: "grid",     w: 600, h: 460, slot: 4, onDesktop: true,  inDock: true  },
+  { id: "stack",      name: "Stack",      kind: "grid",     w: 600, h: 460, slot: 4, onDesktop: false, inDock: true  },
   { id: "contact",    name: "Contact",    kind: "mail",     w: 560, h: 420, slot: 5, onDesktop: true,  inDock: true  },
   { id: "mines",      name: "Minesweeper", kind: "mines",   w: 640, h: 660, slot: 6, onDesktop: true,  inDock: true  },
   { id: "photo",      name: "Me.jpg",     kind: "photo",    w: 460, h: 560, slot: 7, onDesktop: true,  inDock: false },

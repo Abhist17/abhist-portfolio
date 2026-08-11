@@ -23,6 +23,7 @@ function Wallpaper({ children, phone }: { children: React.ReactNode; phone: bool
         ["--sky-2" as string]: t.sky[2],
         ["--sky-3" as string]: t.sky[3],
       }}>
+      <div className="os-photo" aria-hidden />
       {children}
     </div>
   );

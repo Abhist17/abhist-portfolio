@@ -72,6 +72,35 @@
   transition: background 1.1s cubic-bezier(.22,1,.36,1);
 }
 
+/* Soft cloud forms from low-frequency turbulence, blurred hard. A blurred
+   sky photograph is essentially this: broad tonal masses plus grain. */
+.os::before {
+  content: "";
+  position: absolute; inset: -14%;
+  pointer-events: none;
+  opacity: .5;
+  mix-blend-mode: soft-light;
+  filter: blur(34px) contrast(1.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='400'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .011' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='560' height='400' filter='url(%23c)'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+/* A real photograph blurred past recognition. Tonal variation from an
+   actual image is what makes a wallpaper read as photographic rather
+   than as a gradient; the theme colour sits on top of it. */
+.os-photo {
+  position: absolute; inset: -12%;
+  pointer-events: none;
+  background-image: url("/photos/abhiii.jpg");
+  background-size: cover;
+  background-position: 50% 35%;
+  /* greyscaled so it contributes light and shade only — hue stays the
+     theme's, otherwise the photo's colours fight the wallpaper */
+  filter: blur(72px) grayscale(1) contrast(1.2);
+  opacity: .42;
+  mix-blend-mode: soft-light;
+}
+
 /* fine grain so the gradient never bands */
 .os::after {
   content: "";
@@ -328,6 +357,40 @@
 .spark-b { flex: 1; height: 100%; border-radius: 2px; background: #2f8f4f; }
 .w-repos { cursor: pointer; transition: transform .25s cubic-bezier(.22,1,.36,1); }
 .w-repos:hover { transform: translateY(-2px); }
+
+/* now playing */
+.w-music { padding-bottom: 11px; }
+.w-player {
+  border-radius: 11px; overflow: hidden; background: #0d0d10;
+  aspect-ratio: 16 / 10;
+}
+.w-player iframe { width: 100%; height: 100%; border: 0; display: block; }
+.w-music-empty {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 11px; border-radius: 11px; background: rgba(20,20,26,.055);
+}
+.w-music-art {
+  width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(150deg, #2b2b33, #16161a); color: #e9e6df;
+}
+.w-music-lines { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; }
+.w-music-lines strong { font-size: 13px; color: var(--ink); font-weight: 600; }
+.w-music-lines span { font-size: 11.5px; color: #6b6b74; }
+.w-music-link {
+  display: block; margin-top: 9px;
+  font-size: 11px; color: #6b6b74; text-decoration: none;
+  transition: color .25s ease;
+}
+.w-music-link:hover { color: var(--accent); }
+
+/* weather */
+.w-weather .w-kicker { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.w-avail {
+  display: inline-flex; align-items: center; gap: 5px;
+  letter-spacing: .1em; color: #3f8f5c; text-transform: none; font-size: 9px;
+}
+.w-temp { font-size: 40px; font-weight: 300; letter-spacing: -0.035em; color: var(--ink); line-height: 1; }
 
 /* ── windows ───────────────────────────────── */
 .win {
