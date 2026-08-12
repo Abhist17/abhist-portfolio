@@ -514,7 +514,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       return SOCIALS.map(s => ({ kind: "out" as const, text: `${s.label.padEnd(10)} ${s.href}` }));
 
     case "open": {
-      const valid: AppId[] = ["about", "projects", "background", "stack", "contact", "terminal", "photo"];
+      const valid: AppId[] = ["about", "projects", "background", "stack", "contact", "terminal", "photo", "merge"];
       const target = arg as AppId;
       if (valid.includes(target)) { open(target); return [{ kind: "out", text: `opening ${target}…` }]; }
       return [{ kind: "err", text: `open: unknown app "${arg}". try: ${valid.join(", ")}` }];
@@ -607,16 +607,16 @@ function TerminalApp({ open }: { open: (id: AppId) => void }) {
 }
 
 /* the game only loads when someone actually opens it */
-const MinesApp = lazy(() => import("./games/MinesApp"));
+const MergeApp = lazy(() => import("./games/MergeApp"));
 
 /* ═════════════════════════════════════════════
    REGISTRY
 ═════════════════════════════════════════════ */
 export function AppBody({ id, open }: { id: AppId; open: (a: AppId) => void }) {
   switch (id) {
-    case "mines": return (
+    case "merge": return (
       <Suspense fallback={<div className="doc"><p className="muted">Loading…</p></div>}>
-        <MinesApp />
+        <MergeApp />
       </Suspense>
     );
     case "about":      return <AboutApp />;

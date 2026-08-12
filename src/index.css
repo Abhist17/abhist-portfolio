@@ -384,6 +384,63 @@
 }
 .w-music-link:hover { color: var(--accent); }
 
+/* the real player is present but has no size — the widget below is the UI */
+.yt-host { width: 0; height: 0; overflow: hidden; }
+
+.np { display: flex; align-items: center; gap: 11px; }
+.np-art {
+  position: relative; overflow: hidden;
+  width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(150deg, #2b2b33, #16161a); color: #e9e6df;
+}
+.np-art img { width: 100%; height: 100%; object-fit: cover; }
+.np-lines { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; }
+.np-lines strong {
+  font-size: 12.5px; color: var(--ink); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.np-lines span {
+  font-size: 11px; color: #6b6b74;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* the equaliser only exists while sound is coming out */
+.np-eq {
+  position: absolute; inset: auto 0 0 0;
+  display: none; align-items: flex-end; justify-content: center; gap: 2px;
+  height: 15px; padding-bottom: 3px;
+  background: linear-gradient(transparent, rgba(0,0,0,.55));
+}
+.w-music.is-playing .np-eq { display: flex; }
+.np-eq i { width: 2.5px; border-radius: 1px; background: #41e0b3; height: 4px; }
+.np-eq i:nth-child(1) { animation: eq 620ms ease-in-out infinite alternate; }
+.np-eq i:nth-child(2) { animation: eq 480ms ease-in-out infinite alternate .1s; }
+.np-eq i:nth-child(3) { animation: eq 700ms ease-in-out infinite alternate .2s; }
+.np-eq i:nth-child(4) { animation: eq 540ms ease-in-out infinite alternate .05s; }
+@keyframes eq { from { height: 3px; } to { height: 11px; } }
+@media (prefers-reduced-motion: reduce) { .np-eq i { animation: none; height: 7px; } }
+
+.np-track {
+  height: 3px; border-radius: 2px; margin-top: 10px;
+  background: rgba(20,20,26,.1); overflow: hidden;
+}
+.np-track i { display: block; height: 100%; background: var(--ink); transition: width .9s linear; }
+
+.np-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.np-time { font-size: 10.5px; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+.np-btns { display: flex; align-items: center; gap: 5px; }
+.np-btn {
+  width: 27px; height: 27px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.np-btn:hover:not(:disabled) { background: rgba(20,20,26,.07); color: var(--ink); }
+.np-btn:disabled { opacity: .35; cursor: default; }
+.np-play { background: var(--ink); color: #fff; width: 30px; height: 30px; }
+.np-play:hover:not(:disabled) { background: var(--accent); color: #fff; transform: scale(1.06); }
+
 /* weather */
 .w-weather .w-kicker { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .w-avail {
@@ -730,76 +787,87 @@
   font-family: var(--mono); font-size: 12.5px; color: #fff; caret-color: #6ee7a8;
 }
 
-/* ── minesweeper ───────────────────────────── */
-.mines { display: flex; flex-direction: column; height: 100%; background: #edeae4; }
-.mines-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 12px 14px 0;
+/* ── merge (2048, in crypto) ────────────────
+   Tiles are absolutely positioned in percent of
+   one cell, so a move is a transform, not a
+   re-layout — that's what makes the slide read. */
+.merge { display: flex; flex-direction: column; height: 100%; background: #f3f0ea; }
+.merge-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 14px 16px 0;
 }
-.mines-flag {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 11px; border-radius: 8px; font-size: 11px;
-  border: 1px solid var(--hair); color: var(--ink-soft);
-  transition: background .2s ease, color .2s ease;
+.merge-title { display: flex; flex-direction: column; margin-right: auto; }
+.merge-title strong { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+.merge-title span { font-size: 10.5px; color: var(--ink-mute); }
+.merge-scores { display: flex; gap: 7px; }
+.merge-score {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  min-width: 62px; padding: 5px 10px; border-radius: 8px;
+  background: #ded8cb;
 }
-.mines-flag.on { background: var(--accent); color: #fff; border-color: transparent; }
+.merge-score span { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #7d7566; }
+.merge-score strong { font-size: 14px; font-weight: 700; color: #37322a; font-variant-numeric: tabular-nums; }
+.merge-new { padding: 7px 12px; }
 
-.mines-hud {
-  display: flex; align-items: center; justify-content: space-between;
-  margin: 12px 14px 0; padding: 8px 12px;
-  background: #1f1e1c; border-radius: 9px; color: #f2efe9;
-}
-.hud-num {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 600;
-  letter-spacing: .04em; min-width: 62px;
-}
-.hud-num:last-child { justify-content: flex-end; }
-.mines-face {
-  width: 30px; height: 30px; border-radius: 8px;
-  background: #f2efe9; color: #1f1e1c; font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform .2s cubic-bezier(.22,1,.36,1);
-}
-.mines-face:hover { transform: scale(1.08); }
-.mines-face.won  { background: #2fbf5f; color: #fff; }
-.mines-face.lost { background: var(--accent); color: #fff; }
-
-.mines-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 14px; }
-/* the board fits whichever axis runs out first, so it never pushes the
-   HUD or the hint line out of the window */
-.grid {
-  display: grid; gap: 2px;
-  aspect-ratio: var(--ar, 1);
-  height: 100%; width: auto;
+.merge-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 14px 16px; }
+.merge-board {
+  position: relative;
+  aspect-ratio: 1; height: 100%; width: auto;
   max-width: 100%; max-height: 100%;
-  background: #c2beb4; padding: 4px; border-radius: 7px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.18);
+  padding: 8px; border-radius: 12px;
+  background: #cdc5b4;
+  outline: none;
+  touch-action: none;
 }
-.ms {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  border-radius: 3px; font-size: clamp(9px, 2.1vh, 15px); font-weight: 700;
-  font-variant-numeric: tabular-nums; line-height: 1;
-  transition: background .12s ease;
+.merge-board:focus-visible { box-shadow: 0 0 0 3px rgba(125,79,216,.4); }
+.merge-cells {
+  display: grid; height: 100%; width: 100%;
+  grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
 }
-.ms.closed {
-  background: linear-gradient(180deg, #fbfaf7, #ddd9d0);
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,.12);
-  color: var(--accent);
-}
-.ms.closed:hover { background: linear-gradient(180deg, #fff, #e9e5dc); }
-.ms.open { background: #e2ded4; }
-.ms.bomb { background: #d9d4c8; color: #1f1e1c; }
-.ms.boom { background: var(--accent); color: #fff; }
-.grid.won .ms.flag, .grid.lost .ms.flag { opacity: .85; }
+.merge-cells span { border-radius: 8px; background: rgba(255,255,255,.28); }
 
-.mines-foot {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 0 14px 14px; font-size: 11px; color: var(--ink-mute);
+/* one cell = (100% - 3 gaps) / 4; the tile is placed by translating whole
+   cell-widths, gap included */
+.merge-tile {
+  position: absolute; top: 8px; left: 8px;
+  width: calc((100% - 16px - 24px) / 4);
+  height: calc((100% - 16px - 24px) / 4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 8px; line-height: 1;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08);
+  transition: transform .13s cubic-bezier(.3,.9,.4,1);
 }
-.mines-foot .win  { color: #2f8f4f; font-size: 12.5px; }
-.mines-foot .lose { color: var(--accent); font-size: 12.5px; }
-.mines-best { margin-left: auto; }
+.merge-name { font-size: clamp(10px, 2.4vh, 17px); font-weight: 700; letter-spacing: -0.01em; }
+.merge-val {
+  font-size: clamp(8px, 1.5vh, 10.5px); opacity: .62; margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.merge-tile.len-4 .merge-name, .merge-tile.len-5 .merge-name { font-size: clamp(9px, 2.1vh, 15px); }
+.merge-tile.len-6 .merge-name { font-size: clamp(8px, 1.9vh, 13px); }
+
+.merge-tile.is-new { animation: tile-in .16s cubic-bezier(.22,1,.36,1); }
+.merge-tile.is-merged { animation: tile-pop .18s cubic-bezier(.22,1,.36,1); }
+@keyframes tile-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tile-pop { 50% { filter: brightness(1.18); } }
+
+.merge-over {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  border-radius: 12px; text-align: center; padding: 20px;
+  background: rgba(243,240,234,.9);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  animation: viewer-in .2s ease;
+}
+.merge-over-title { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+.merge-over-sub { font-size: 12px; color: var(--ink-soft); }
+.merge-over-acts { display: flex; gap: 8px; margin-top: 10px; }
+
+.merge-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 16px 14px; font-size: 11px; color: var(--ink-mute);
+}
+.merge-deep { font-weight: 600; color: var(--ink-soft); }
 
 .seg { display: flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
 .seg button {
@@ -810,8 +878,8 @@
 .seg button.on { background: var(--ink); color: #fff; }
 
 @media (max-width: 620px) {
-  .mines-bar { flex-direction: column; align-items: stretch; }
-  .ms { font-size: 12px; }
+  .merge-bar { gap: 8px; }
+  .merge-title { width: 100%; }
 }
 
 /* ── dock ──────────────────────────────────── */

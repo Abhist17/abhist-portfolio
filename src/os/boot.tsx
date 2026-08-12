@@ -22,7 +22,7 @@ const LINES: Line[] = [
   { text: "starting evm daemon", ok: true, delay: 120 },
   { text: "connecting to solana rpc", ok: true, delay: 130 },
   { text: "checking for blunders in chess.ko … module removed", delay: 140 },
-  { text: "arming 10 mines", ok: true, delay: 110 },
+  { text: "seeding the merge board", ok: true, delay: 110 },
   { text: "AbhistOS ready", ok: true, delay: 220 },
 ];
 

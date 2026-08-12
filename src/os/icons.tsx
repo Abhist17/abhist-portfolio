@@ -163,35 +163,37 @@ export function PhotoIcon({ size = 64, src }: P & { src?: string }) {
   );
 }
 
-export function MinesIcon({ size = 64 }: P) {
+/* A little 2×2 of the game's own tiles, with the top one lit. */
+export function MergeIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <defs>
-        <linearGradient id="ms-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f2efe8" /><stop offset="1" stopColor="#cdc8bc" />
+        <linearGradient id="mg-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f2efe8" /><stop offset="1" stopColor="#d8d3c6" />
         </linearGradient>
-        <radialGradient id="ms-ball" cx="0.35" cy="0.3">
-          <stop offset="0" stopColor="#54545e" /><stop offset="1" stopColor="#141418" />
-        </radialGradient>
+        <linearGradient id="mg-hot" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#7d4fd8" /><stop offset="1" stopColor="#41e0b3" />
+        </linearGradient>
       </defs>
       <Shadow />
-      <rect x="6" y="6" width="52" height="52" rx="11" fill="url(#ms-body)" />
-      <rect x="6" y="6" width="52" height="52" rx="11" fill="none" stroke="#b6b1a4" strokeWidth="1" />
+      <rect x="6" y="6" width="52" height="52" rx="12" fill="url(#mg-body)" />
+      <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke="#b8b3a5" strokeWidth="1" />
       <path d="M6 18a12 12 0 0 1 12-12h28a12 12 0 0 1 12 12z" fill="#fff" opacity=".5" />
-      <g fill="#1c1b1a">
-        <path d="M30.4 13.5h3.2v6h-3.2zM30.4 44.5h3.2v6h-3.2z" />
-        <path d="M13.5 30.4h6v3.2h-6zM44.5 30.4h6v3.2h-6z" />
-        <path d="M18.6 20.9l2.3-2.3 4.2 4.2-2.3 2.3zM39.2 41.5l2.3-2.3 4.2 4.2-2.3 2.3zM43.4 18.6l2.3 2.3-4.2 4.2-2.3-2.3zM22.8 39.2l2.3 2.3-4.2 4.2-2.3-2.3z" />
+      <g>
+        <rect x="13" y="13" width="17" height="17" rx="4" fill="#e0d8c6" />
+        <rect x="34" y="13" width="17" height="17" rx="4" fill="#ec9463" />
+        <rect x="13" y="34" width="17" height="17" rx="4" fill="#5b6ee0" />
+        <rect x="34" y="34" width="17" height="17" rx="4" fill="url(#mg-hot)" />
       </g>
-      <circle cx="32" cy="32" r="11.5" fill="url(#ms-ball)" />
-      <circle cx="27.8" cy="27.8" r="3" fill="#fff" opacity=".55" />
+      {/* the merged tile lifts off the board */}
+      <rect x="34" y="34" width="17" height="17" rx="4" fill="none" stroke="#fff" strokeWidth="1.4" opacity=".55" />
     </svg>
   );
 }
 
 export function AppIcon({ kind, size = 64, src }: { kind: string; size?: number; src?: string }) {
   switch (kind) {
-    case "mines":    return <MinesIcon size={size} />;
+    case "merge":    return <MergeIcon size={size} />;
     case "folder":   return <FolderIcon size={size} />;
     case "folder-alt": return <FolderAltIcon size={size} />;
     case "doc":      return <DocIcon size={size} />;

@@ -22,8 +22,19 @@ export const CONFIG = {
   resume: "",
 
   /* ── music ────────────────────────────────
-     A YouTube Music / YouTube / Spotify link.
-     Empty = no Now Playing widget. */
+     Paste a YouTube / YouTube Music link:
+
+       a playlist  →  the widget plays it and gets
+                      prev / next buttons
+       one video   →  that track, on its own
+       a Spotify link still works, but Spotify
+       only allows their own embedded player.
+
+     The playlist must be Public or Unlisted —
+     YouTube refuses to play a Private one for
+     anyone but you.
+
+     Empty = the widget just says nothing queued. */
   music: "",
 
   /* ── photos ───────────────────────────────
