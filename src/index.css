@@ -253,12 +253,18 @@
 .dropdown button:hover, .dropdown a:hover { background: var(--accent); color: #fff; }
 
 /* ── desktop surface ───────────────────────── */
+/* The desktop is a band, not the whole monitor. Past ~1500px the icons and
+   the widgets would drift to opposite edges and leave a lake of wallpaper
+   down the middle; capping the content keeps the composition together and
+   lets the wallpaper be wallpaper. */
 .surface {
   position: absolute; inset: var(--bar-h) 0 0 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 312px;
   gap: 28px;
   padding: 34px 26px 0;
+  max-width: 1500px;
+  margin-inline: auto;
 }
 .surface-main { min-width: 0; display: flex; flex-direction: column; gap: 42px; }
 
@@ -284,19 +290,21 @@
 .intro-more:hover { border-color: #fff; gap: 11px; }
 
 /* desktop icons
-   The grid hangs on the same left rail as the intro above it. An icon is
-   centred in its cell, so the cell has to start half its slack to the left
-   for the artwork — not the padding box — to line up with the avatar.
-      (cell 124 − art 84) / 2 = 20 */
+   The grid hangs on the same left rail as the intro above it. Two shifts get
+   it there: an icon is centred in its cell, so the cell starts half its slack
+   to the left — and every icon SVG carries ~8px of empty margin inside its
+   own box, so the *drawn* edge needs that back too. Align what's painted,
+   not what's boxed, or the icons read as indented next to the avatar. */
 .icons {
   --cell: 124px;
   --art: 84px;
+  --art-inset: 8px;
   display: grid;
   grid-template-columns: repeat(4, var(--cell));
   gap: 26px 22px;
   align-content: start;
   justify-content: start;
-  margin-left: calc((var(--art) - var(--cell)) / 2);
+  margin-left: calc((var(--art) - var(--cell)) / 2 - var(--art-inset));
   /* a third row must never slide under the dock */
   padding-bottom: 104px;
   flex: 1;
@@ -320,7 +328,14 @@
 .icon.is-sel .icon-label { background: var(--accent); text-shadow: none; }
 
 /* ── widgets ───────────────────────────────── */
-.widgets { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-bottom: 130px; }
+.widgets {
+  display: flex; flex-direction: column; gap: 12px;
+  overflow-y: auto; padding-bottom: 130px;
+  /* a dark scrollbar on the wallpaper looks like a scratch */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.42) transparent;
+}
+.widgets::-webkit-scrollbar-thumb { background: rgba(255,255,255,.42); }
 .w-card {
   background: rgba(255,255,255,.82);
   backdrop-filter: blur(26px) saturate(150%);
@@ -892,11 +907,17 @@
 }
 
 /* ── dock ──────────────────────────────────── */
+/* Centred by the box, never by a transform: the entrance animation ends on
+   `transform: none` with fill `both`, which would wipe a translateX(-50%)
+   for good and leave the dock starting at the centre instead of straddling
+   it. The strip spans the width, so it must not swallow desktop clicks. */
 .dock-wrap {
-  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 14px; left: 0; right: 0;
   z-index: 250;
   display: flex; flex-direction: column; align-items: center; gap: 7px;
+  pointer-events: none;
 }
+.dock-wrap > * { pointer-events: auto; }
 .dock {
   display: flex; align-items: flex-end; gap: 9px;
   padding: 9px 13px 8px;
