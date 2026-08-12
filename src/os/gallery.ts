@@ -10,6 +10,7 @@
 ───────────────────────────────────────────── */
 import { CONFIG } from "./config";
 import { ME } from "./data";
+import { caption } from "./caption";
 
 export type Shot = { src: string; caption: string; key: string };
 
@@ -19,17 +20,6 @@ const found = import.meta.glob(
 ) as Record<string, string>;
 
 const fileName = (path: string) => path.split("/").pop()!.replace(/\.[^.]+$/, "");
-
-/** "01-goa-sunset" → "Goa sunset". Ordering prefixes are for me, not the visitor. */
-function caption(path: string) {
-  const words = fileName(path)
-    .replace(/^[\d\s._-]+/, "")
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!words) return fileName(path);
-  return words.charAt(0).toUpperCase() + words.slice(1);
-}
 
 const dropped: Shot[] = Object.keys(found)
   .sort((a, b) => fileName(a).localeCompare(fileName(b), undefined, { numeric: true }))
