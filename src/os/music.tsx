@@ -103,6 +103,9 @@ export function NowPlaying() {
   const [track, setTrack] = useState<{ title: string; by: string; id: string } | null>(null);
   const [time, setTime] = useState({ at: 0, of: 0 });
   const [broken, setBroken] = useState(false);
+  /* labels blocked from embedding are common in a music playlist — those
+     tracks get skipped rather than taking the whole widget down */
+  const skipped = useRef(0);
 
   const isYouTube = source?.kind === "playlist" || source?.kind === "video";
 
@@ -125,8 +128,19 @@ export function NowPlaying() {
             if (dead) return;
             /* 1 = playing, 2 = paused, 0 = ended */
             setPlaying(e.data === 1);
+            /* a track that actually plays clears the skip budget */
+            if (e.data === 1) skipped.current = 0;
           },
-          onError: () => { if (!dead) setBroken(true); },
+          onError: () => {
+            if (dead) return;
+            /* step over an unplayable track; give up once the whole
+               neighbourhood of the playlist refuses */
+            if (source!.kind === "playlist" && skipped.current < 5) {
+              skipped.current += 1;
+              try { playerRef.current?.nextVideo(); return; } catch { /* fall through */ }
+            }
+            setBroken(true);
+          },
         },
       };
       playerRef.current = new window.YT.Player(

@@ -35,7 +35,7 @@ export const CONFIG = {
      anyone but you.
 
      Empty = the widget just says nothing queued. */
-  music: "",
+  music: "https://music.youtube.com/playlist?list=PLa8ByYqk6rI1MbpRNC1OvPpETeQMgYGHx",
 
   /* ── photos ───────────────────────────────
      Drop images in public/photos/ and list them
