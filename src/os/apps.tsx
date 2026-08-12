@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { lazy, Suspense } from "react";
 import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
 import { SocialIcon } from "./icons";
 import { ToolIcon, findTool } from "./tech";
+import { LANG_COLOR, timeAgo, useRepos, type Repo } from "./live";
 import type { AppId } from "./system";
 
 /* Every app opens with its own title, the way a real app does. */
@@ -42,57 +43,191 @@ function AboutApp() {
 }
 
 /* ═════════════════════════════════════════════
-   PROJECTS — a Finder-ish list view
+   PROJECTS — live from GitHub
 ═════════════════════════════════════════════ */
+type Sort = "recent" | "stars" | "name";
+
+/** A row is either a live repo, one of the hand-written entries, or both. */
+type Entry = {
+  key: string;
+  title: string;
+  desc: string;
+  link: string;
+  language: string | null;
+  stars: number;
+  pushedAt: string | null;
+  featured: boolean;
+  isFork: boolean;
+  archived: boolean;
+  stack: string | null;
+  done: boolean | null;
+};
+
+const repoSlug = (url: string) => url.replace(/\/+$/, "").split("/").pop()!.toLowerCase();
+
+/** Curated notes win over GitHub's one-liners; everything else comes live. */
+function buildEntries(repos: Repo[] | null): Entry[] {
+  const curated = new Map(PROJECTS.map(p => [repoSlug(p.link), p]));
+  const out: Entry[] = [];
+  const seen = new Set<string>();
+
+  for (const r of repos ?? []) {
+    const slug = r.name.toLowerCase();
+    const c = curated.get(slug);
+    /* forks are noise unless they were hand-picked */
+    if (r.isFork && !c) continue;
+    seen.add(slug);
+    out.push({
+      key: slug,
+      title: c?.title ?? r.name,
+      desc: c?.desc ?? r.description ?? "No description yet.",
+      link: r.url,
+      language: r.language,
+      stars: r.stars,
+      pushedAt: r.pushedAt,
+      featured: !!c,
+      isFork: r.isFork,
+      archived: r.archived,
+      stack: c?.stack ?? null,
+      done: c?.done ?? null,
+    });
+  }
+
+  /* anything curated that GitHub didn't return still shows */
+  for (const p of PROJECTS) {
+    const slug = repoSlug(p.link);
+    if (seen.has(slug)) continue;
+    out.push({
+      key: slug, title: p.title, desc: p.desc, link: p.link,
+      language: null, stars: 0, pushedAt: null, featured: true,
+      isFork: false, archived: false, stack: p.stack, done: p.done,
+    });
+  }
+  return out;
+}
+
 function ProjectsApp() {
+  const { data: repos, loading, failed } = useRepos();
   const [sel, setSel] = useState(0);
-  const p = PROJECTS[sel];
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<Sort>("recent");
+  const [onlyFeatured, setOnlyFeatured] = useState(false);
+
+  const all = useMemo(() => buildEntries(repos), [repos]);
+
+  const list = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const filtered = all.filter(e => {
+      if (onlyFeatured && !e.featured) return false;
+      if (!needle) return true;
+      return (
+        e.title.toLowerCase().includes(needle) ||
+        e.desc.toLowerCase().includes(needle) ||
+        (e.language ?? "").toLowerCase().includes(needle)
+      );
+    });
+    const sorted = filtered.slice();
+    if (sort === "stars") sorted.sort((a, b) => b.stars - a.stars || a.title.localeCompare(b.title));
+    else if (sort === "name") sorted.sort((a, b) => a.title.localeCompare(b.title));
+    else sorted.sort((a, b) => (b.pushedAt ?? "").localeCompare(a.pushedAt ?? ""));
+    /* featured float to the top so the good work leads */
+    return sorted.sort((a, b) => Number(b.featured) - Number(a.featured));
+  }, [all, q, sort, onlyFeatured]);
+
+  const p = list[Math.min(sel, list.length - 1)];
 
   return (
     <div className="app">
-      <AppHead title="Projects" sub={`${PROJECTS.length} repositories · ${PROJECTS.filter(x => x.done).length} shipped`} />
-      <div className="finder">
-      <div className="finder-list" role="listbox" aria-label="Projects">
-        <div className="finder-cols">
-          <span>Name</span><span>Stack</span><span>Status</span>
+      <AppHead
+        title="Projects"
+        sub={loading && !all.length
+          ? "loading from github…"
+          : `${list.length} of ${all.length} repositories${failed ? " · offline copy" : " · live from github"}`}
+      />
+
+      <div className="proj-tools">
+        <label className="search">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M10.8 10.8L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            value={q}
+            onChange={e => { setQ(e.target.value); setSel(0); }}
+            placeholder="Search projects, languages…"
+            aria-label="Search projects"
+          />
+        </label>
+        <div className="seg seg-sm">
+          {(["recent", "stars", "name"] as Sort[]).map(sv => (
+            <button key={sv} className={sort === sv ? "on" : ""} onClick={() => setSort(sv)}>{sv}</button>
+          ))}
         </div>
-        {PROJECTS.map((it, i) => (
-          <button
-            key={it.n}
-            role="option"
-            aria-selected={i === sel}
-            className={`finder-row ${i === sel ? "is-sel" : ""}`}
-            onClick={() => setSel(i)}
-            onDoubleClick={() => window.open(it.link, "_blank", "noreferrer")}>
-            <span className="fr-name">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <path d="M1 4a1 1 0 0 1 1-1h4l1.5 1.5H14a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1z"
-                  fill="currentColor" opacity=".55" />
-              </svg>
-              {it.title}
-            </span>
-            <span className="fr-stack">{it.stack}</span>
-            <span className={`fr-status ${it.done ? "ok" : "wip"}`}>{it.done ? "Shipped" : "In progress"}</span>
-          </button>
-        ))}
+        <button
+          className={`chip-toggle ${onlyFeatured ? "on" : ""}`}
+          onClick={() => { setOnlyFeatured(v => !v); setSel(0); }}
+          aria-pressed={onlyFeatured}>
+          ★ Featured
+        </button>
       </div>
 
-      <aside className="finder-detail">
-        <p className="kicker">{p.n} — Project</p>
-        <h3>{p.title}</h3>
-        <p className="doc-p">{p.desc}</p>
-        <dl className="meta">
-          <div><dt>Stack</dt><dd>{p.stack}</dd></div>
-          <div><dt>Status</dt><dd>{p.done ? "Shipped" : "In progress"}</dd></div>
-        </dl>
-        <a className="btn" href={p.link} target="_blank" rel="noreferrer">
-          Open on GitHub
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
-            <path d="M2 10L10 2M10 2H3.5M10 2V8.5" stroke="currentColor" strokeWidth="1.3" />
-          </svg>
-        </a>
-        <p className="hint">Double-click a row to open it directly.</p>
-      </aside>
+      <div className="finder">
+        <div className="finder-list" role="listbox" aria-label="Projects">
+          {list.map((it, i) => (
+            <button
+              key={it.key}
+              role="option"
+              aria-selected={i === sel}
+              className={`repo-row ${i === sel ? "is-sel" : ""}`}
+              onClick={() => setSel(i)}
+              onDoubleClick={() => window.open(it.link, "_blank", "noreferrer")}>
+              <span className="repo-main">
+                <span className="repo-name">
+                  {it.title}
+                  {it.featured && <span className="repo-star" title="Featured">★</span>}
+                  {it.isFork && <span className="repo-tag">fork</span>}
+                  {it.archived && <span className="repo-tag">archived</span>}
+                </span>
+                <span className="repo-desc">{it.desc}</span>
+              </span>
+              <span className="repo-meta">
+                {it.language && (
+                  <span className="repo-lang">
+                    <i style={{ background: LANG_COLOR[it.language] ?? "#8a8a93" }} />
+                    {it.language}
+                  </span>
+                )}
+                {it.stars > 0 && <span className="repo-stars">★ {it.stars}</span>}
+                {it.pushedAt && <span className="repo-time">{timeAgo(it.pushedAt)}</span>}
+              </span>
+            </button>
+          ))}
+          {!list.length && (
+            <p className="repo-empty">{loading ? "Loading…" : "Nothing matches that search."}</p>
+          )}
+        </div>
+
+        {p && (
+          <aside className="finder-detail">
+            <p className="kicker">{p.featured ? "Featured project" : "Repository"}</p>
+            <h3>{p.title}</h3>
+            <p className="doc-p">{p.desc}</p>
+            <dl className="meta">
+              {p.stack     && <div><dt>Stack</dt><dd>{p.stack}</dd></div>}
+              {p.language  && <div><dt>Lang</dt><dd>{p.language}</dd></div>}
+              <div><dt>Stars</dt><dd>{p.stars}</dd></div>
+              {p.pushedAt  && <div><dt>Updated</dt><dd>{timeAgo(p.pushedAt)}</dd></div>}
+              {p.done !== null && <div><dt>Status</dt><dd>{p.done ? "Shipped" : "In progress"}</dd></div>}
+            </dl>
+            <a className="btn" href={p.link} target="_blank" rel="noreferrer">
+              Open on GitHub
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+                <path d="M2 10L10 2M10 2H3.5M10 2V8.5" stroke="currentColor" strokeWidth="1.3" />
+              </svg>
+            </a>
+            <p className="hint">Double-click a row to open it directly.</p>
+          </aside>
+        )}
       </div>
     </div>
   );

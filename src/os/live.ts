@@ -151,3 +151,62 @@ export function useCodeforces(): Result<CFStats> {
     },
   );
 }
+
+/* ── Repositories ─────────────────────────── */
+export type Repo = {
+  name: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  forks: number;
+  url: string;
+  homepage: string | null;
+  pushedAt: string;
+  isFork: boolean;
+  archived: boolean;
+};
+
+export function useRepos(): Result<Repo[]> {
+  const user = CONFIG.github;
+  return useJson<Repo[]>(
+    `abhistos.repos.${user}`,
+    user ? `https://api.github.com/users/${user}/repos?per_page=100&sort=pushed` : null,
+    30 * 60 * 1000,
+    (raw: never) => {
+      const rs = raw as unknown as Record<string, unknown>[];
+      return rs.map(r => ({
+        name: String(r.name),
+        description: (r.description as string) ?? null,
+        language: (r.language as string) ?? null,
+        stars: Number(r.stargazers_count ?? 0),
+        forks: Number(r.forks_count ?? 0),
+        url: String(r.html_url),
+        homepage: (r.homepage as string) || null,
+        pushedAt: String(r.pushed_at),
+        isFork: Boolean(r.fork),
+        archived: Boolean(r.archived),
+      }));
+    },
+  );
+}
+
+/** GitHub's own language colours, so the dots read as familiar. */
+export const LANG_COLOR: Record<string, string> = {
+  TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572a5",
+  Rust: "#dea584", C: "#555555", "C++": "#f34b7d", HTML: "#e34c26",
+  CSS: "#563d7c", "Jupyter Notebook": "#da5b0b", Solidity: "#aa6746",
+  Shell: "#89e051", Go: "#00add8", Java: "#b07219",
+};
+
+export function timeAgo(iso: string): string {
+  const secs = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  const steps: [number, string][] = [
+    [31536000, "year"], [2592000, "month"], [604800, "week"],
+    [86400, "day"], [3600, "hour"], [60, "minute"],
+  ];
+  for (const [size, label] of steps) {
+    const n = Math.floor(secs / size);
+    if (n >= 1) return `${n} ${label}${n > 1 ? "s" : ""} ago`;
+  }
+  return "just now";
+}
