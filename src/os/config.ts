@@ -33,8 +33,13 @@ export const CONFIG = {
   photos: [] as { src: string; caption: string }[],
 
   /* ── github ───────────────────────────────
-     Public API, no key needed. */
+     Public API, no key needed.
+
+     Projects only lists repos with at least this many stars, so
+     starring your own repo on GitHub is what puts it on the site.
+     Set to 0 to list everything. */
   github: "Abhist17",
+  minStars: 1,
 
   /* ── weather ──────────────────────────────
      Open-Meteo, no key needed. Nagpur. */

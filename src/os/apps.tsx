@@ -4,6 +4,7 @@ import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
 import { SocialIcon } from "./icons";
 import { ToolIcon, findTool } from "./tech";
 import { LANG_COLOR, timeAgo, useRepos, type Repo } from "./live";
+import { CONFIG } from "./config";
 import type { AppId } from "./system";
 
 /* Every app opens with its own title, the way a real app does. */
@@ -76,6 +77,8 @@ function buildEntries(repos: Repo[] | null): Entry[] {
     const c = curated.get(slug);
     /* forks are noise unless they were hand-picked */
     if (r.isFork && !c) continue;
+    /* starring your own repo on GitHub is what publishes it here */
+    if (r.stars < CONFIG.minStars) continue;
     seen.add(slug);
     out.push({
       key: slug,
@@ -93,7 +96,9 @@ function buildEntries(repos: Repo[] | null): Entry[] {
     });
   }
 
-  /* anything curated that GitHub didn't return still shows */
+  /* if GitHub is unreachable, fall back to the curated set so the
+     window is never empty */
+  if (repos && repos.length) return out;
   for (const p of PROJECTS) {
     const slug = repoSlug(p.link);
     if (seen.has(slug)) continue;
@@ -111,14 +116,12 @@ function ProjectsApp() {
   const [sel, setSel] = useState(0);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<Sort>("recent");
-  const [onlyFeatured, setOnlyFeatured] = useState(false);
 
   const all = useMemo(() => buildEntries(repos), [repos]);
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = all.filter(e => {
-      if (onlyFeatured && !e.featured) return false;
       if (!needle) return true;
       return (
         e.title.toLowerCase().includes(needle) ||
@@ -132,7 +135,7 @@ function ProjectsApp() {
     else sorted.sort((a, b) => (b.pushedAt ?? "").localeCompare(a.pushedAt ?? ""));
     /* featured float to the top so the good work leads */
     return sorted.sort((a, b) => Number(b.featured) - Number(a.featured));
-  }, [all, q, sort, onlyFeatured]);
+  }, [all, q, sort]);
 
   const p = list[Math.min(sel, list.length - 1)];
 
@@ -142,7 +145,7 @@ function ProjectsApp() {
         title="Projects"
         sub={loading && !all.length
           ? "loading from github…"
-          : `${list.length} of ${all.length} repositories${failed ? " · offline copy" : " · live from github"}`}
+          : `${list.length} starred ${list.length === 1 ? "repository" : "repositories"}${failed ? " · offline copy" : " · live from github"}`}
       />
 
       <div className="proj-tools">
@@ -163,12 +166,6 @@ function ProjectsApp() {
             <button key={sv} className={sort === sv ? "on" : ""} onClick={() => setSort(sv)}>{sv}</button>
           ))}
         </div>
-        <button
-          className={`chip-toggle ${onlyFeatured ? "on" : ""}`}
-          onClick={() => { setOnlyFeatured(v => !v); setSel(0); }}
-          aria-pressed={onlyFeatured}>
-          ★ Featured
-        </button>
       </div>
 
       <div className="finder">
