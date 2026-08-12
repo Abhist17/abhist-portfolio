@@ -283,19 +283,28 @@
 }
 .intro-more:hover { border-color: #fff; gap: 11px; }
 
-/* desktop icons */
+/* desktop icons
+   The grid hangs on the same left rail as the intro above it. An icon is
+   centred in its cell, so the cell has to start half its slack to the left
+   for the artwork — not the padding box — to line up with the avatar.
+      (cell 124 − art 84) / 2 = 20 */
 .icons {
+  --cell: 124px;
+  --art: 84px;
   display: grid;
-  grid-template-columns: repeat(4, 152px);
-  gap: 34px 12px;
+  grid-template-columns: repeat(4, var(--cell));
+  gap: 26px 22px;
   align-content: start;
   justify-content: start;
+  margin-left: calc((var(--art) - var(--cell)) / 2);
+  /* a third row must never slide under the dock */
+  padding-bottom: 104px;
   flex: 1;
   min-height: 0;
 }
 .icon {
-  display: flex; flex-direction: column; align-items: center; gap: 9px;
-  padding: 12px 8px; border-radius: 11px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 10px 6px; border-radius: 11px;
   border: 1px solid transparent;
   transition: background .18s ease, border-color .18s ease;
 }
