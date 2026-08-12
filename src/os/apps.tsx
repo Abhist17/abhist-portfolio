@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { lazy, Suspense } from "react";
 import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
 import { SocialIcon } from "./icons";
+import { ToolIcon, findTool } from "./tech";
 import type { AppId } from "./system";
 
 /* Every app opens with its own title, the way a real app does. */
@@ -130,16 +131,28 @@ function StackApp() {
   const total = Object.values(SKILLS).flat().length;
   return (
     <div className="app">
-      <AppHead title="Stack" sub={`${total} tools across ${Object.keys(SKILLS).length} areas`} />
+      <AppHead title="Tech Stack" sub={`${total} tools across ${Object.keys(SKILLS).length} areas`} />
       <div className="doc" style={{ overflow: "auto" }}>
-      {Object.entries(SKILLS).map(([cat, items]) => (
-        <section className="stack-group" key={cat}>
-          <p className="kicker">{cat}</p>
-          <div className="chips">
-            {items.map(s => <span className="chip" key={s}>{s}</span>)}
-          </div>
-        </section>
-      ))}
+        {Object.entries(SKILLS).map(([cat, items]) => (
+          <section className="stack-group" key={cat}>
+            <p className="kicker">{cat}</p>
+            <div className="tool-grid">
+              {items.map(name => {
+                const tool = findTool(name);
+                return (
+                  <div className="tool" key={name}>
+                    <span className="tool-art">
+                      {tool
+                        ? <ToolIcon tool={tool} size={46} />
+                        : <span className="tool-fallback">{name.slice(0, 2)}</span>}
+                    </span>
+                    <span className="tool-name">{name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { ME, SOCIALS, STATS, THEMES, PROJECTS, SKILLS } from "./data";
 import { AppIcon, SocialIcon } from "./icons";
 import { AppBody } from "./apps";
 import { CONFIG } from "./config";
-import { TOOLS, ToolIcon, type Tool } from "./tech";
+
 import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
 import { NowPlaying } from "./music";
 import {
@@ -337,8 +337,11 @@ export function Windows() {
 ═════════════════════════════════════════════ */
 /* macOS-style magnification: each tile scales by how close the pointer is,
    so neighbours swell too instead of one tile popping on hover. */
-function DockTile({ tool, mouseX, onOpen }: {
-  tool: Tool; mouseX: ReturnType<typeof useMotionValue<number | null>>; onOpen: () => void;
+function DockTile({ app, mouseX, isOpen, onOpen }: {
+  app: typeof APPS[number];
+  mouseX: ReturnType<typeof useMotionValue<number | null>>;
+  isOpen: boolean;
+  onOpen: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -348,38 +351,40 @@ function DockTile({ tool, mouseX, onOpen }: {
     return Math.abs(x - (b.left + b.width / 2));
   });
 
-  const scale = useSpring(
-    useTransform(distance, [0, 60, 130], [1.62, 1.22, 1]),
-    { stiffness: 340, damping: 26, mass: 0.5 },
-  );
-  const lift = useSpring(
-    useTransform(distance, [0, 60, 130], [-13, -5, 0]),
-    { stiffness: 340, damping: 26, mass: 0.5 },
-  );
+  const spring = { stiffness: 340, damping: 26, mass: 0.5 };
+  const scale = useSpring(useTransform(distance, [0, 60, 130], [1.58, 1.2, 1]), spring);
+  const lift  = useSpring(useTransform(distance, [0, 60, 130], [-12, -5, 0]), spring);
 
   return (
-    <button ref={ref} className="dock-item" onClick={onOpen} aria-label={tool.name}>
+    <button ref={ref} className="dock-item" onClick={onOpen} aria-label={app.name}>
       <motion.span className="dock-art" style={{ scale, y: lift }}>
-        <ToolIcon tool={tool} size={46} />
+        <AppIcon kind={app.kind} size={46} src={ME.avatar} />
       </motion.span>
-      <span className="dock-tip">{tool.name}</span>
+      <span className="dock-tip">{app.name}</span>
+      <span className={`dock-dot ${isOpen ? "on" : ""}`} />
     </button>
   );
 }
 
 export function Dock() {
-  const { open } = useSystem();
+  const { open, windows } = useSystem();
   const mouseX = useMotionValue<number | null>(null);
+  const dockApps = APPS.filter(a => a.inDock);
 
   return (
     <div className="dock-wrap anim-rise" style={{ animationDelay: "0.35s" }}>
-      <p className="dock-kicker">Tech stack</p>
       <div
         className="dock"
         onPointerMove={e => mouseX.set(e.clientX)}
         onPointerLeave={() => mouseX.set(null)}>
-        {TOOLS.map(t => (
-          <DockTile key={t.id} tool={t} mouseX={mouseX} onOpen={() => open("stack")} />
+        {dockApps.map(a => (
+          <DockTile
+            key={a.id}
+            app={a}
+            mouseX={mouseX}
+            isOpen={windows.some(w => w.id === a.id)}
+            onOpen={() => open(a.id)}
+          />
         ))}
       </div>
     </div>

@@ -37,6 +37,28 @@ export function FolderIcon({ size = 64 }: P) {
   );
 }
 
+export function FolderAltIcon({ size = 64 }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <defs>
+        <linearGradient id="fa-back" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#d9b878" /><stop offset="1" stopColor="#b2894a" />
+        </linearGradient>
+        <linearGradient id="fa-front" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f0d9a8" /><stop offset="0.5" stopColor="#dcbb7f" />
+          <stop offset="1" stopColor="#c19a5c" />
+        </linearGradient>
+      </defs>
+      <Shadow />
+      <path d="M6 17a4 4 0 0 1 4-4h13.4a3 3 0 0 1 2.2 1l4.2 4.4H54a4 4 0 0 1 4 4v6H6z" fill="url(#fa-back)" />
+      <rect x="15" y="19" width="34" height="7" rx="1.6" fill="#f7f3ea" opacity=".92" />
+      <path d="M6 23h52v25a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="url(#fa-front)" />
+      <path d="M6 23h52v1.8H6z" fill="#fff" opacity=".5" />
+      <path d="M8.6 50.4h46.8" stroke="#9d7736" strokeWidth="1" opacity=".4" />
+    </svg>
+  );
+}
+
 export function DocIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
@@ -171,6 +193,7 @@ export function AppIcon({ kind, size = 64, src }: { kind: string; size?: number;
   switch (kind) {
     case "mines":    return <MinesIcon size={size} />;
     case "folder":   return <FolderIcon size={size} />;
+    case "folder-alt": return <FolderAltIcon size={size} />;
     case "doc":      return <DocIcon size={size} />;
     case "terminal": return <TerminalIcon size={size} />;
     case "mail":     return <MailIcon size={size} />;

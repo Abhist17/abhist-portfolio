@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────
    TECH STACK MARKS
-   The dock is Abhist's toolchain, the way a real
-   dock is the apps you actually run.
+   One mark per tool, shown inside the Tech Stack
+   folder. The dock is for launching apps.
 ───────────────────────────────────────────── */
 
 export type Tool = { id: string; name: string; art: JSX.Element };
@@ -144,7 +144,74 @@ export const TOOLS: Tool[] = [
       </>
     ),
   },
+  {
+    id: "hardhat", name: "Hardhat",
+    art: (
+      <>
+        {sq("#1a1a1f")}
+        <g transform="translate(24 26)">
+          <path d="M-13 6a13 13 0 0 1 26 0z" fill="#fff048" />
+          <path d="M-6.5 -6a6.5 6.5 0 0 1 13 0v12h-13z" fill="#f0c000" />
+          <rect x="-16" y="5.4" width="32" height="4.2" rx="2.1" fill="#fff048" />
+        </g>
+      </>
+    ),
+  },
+  {
+    id: "ethers", name: "Ethers.js",
+    art: (
+      <>
+        {sq("#20232f")}
+        <g transform="translate(24 24)" stroke="#8a9bf0" strokeWidth="1.7" fill="none">
+          <ellipse rx="6" ry="13" />
+          <ellipse rx="6" ry="13" transform="rotate(60)" />
+          <ellipse rx="6" ry="13" transform="rotate(120)" />
+        </g>
+        <circle cx="24" cy="24" r="3.4" fill="#8a9bf0" />
+      </>
+    ),
+  },
+  {
+    id: "web3", name: "Web3.js",
+    art: (
+      <>
+        {sq("#f16822")}
+        <text x="24" y="31" textAnchor="middle" fill="#fff"
+          style={{ font: "700 16px 'Inter Tight', system-ui, sans-serif" }}>W3</text>
+      </>
+    ),
+  },
+  {
+    id: "javascript", name: "JavaScript",
+    art: (
+      <>
+        {sq("#f7df1e")}
+        <text x="24" y="32" textAnchor="middle" fill="#1a1a1f"
+          style={{ font: "700 18px 'Inter Tight', system-ui, sans-serif" }}>JS</text>
+      </>
+    ),
+  },
+  {
+    id: "tailwind", name: "Tailwind",
+    art: (
+      <>
+        {sq("#0f2330")}
+        <g fill="#38bdf8">
+          <path d="M24 17c-4 0-6.5 2-7.5 6 1.5-2 3.25-2.75 5.25-2.25 1.14.29 1.96 1.12 2.86 2.04C26.08 24.29 27.78 26 31.5 26c4 0 6.5-2 7.5-6-1.5 2-3.25 2.75-5.25 2.25-1.14-.29-1.96-1.12-2.86-2.04C29.42 18.71 27.72 17 24 17z" transform="translate(-7 0)" />
+          <path d="M24 17c-4 0-6.5 2-7.5 6 1.5-2 3.25-2.75 5.25-2.25 1.14.29 1.96 1.12 2.86 2.04C26.08 24.29 27.78 26 31.5 26c4 0 6.5-2 7.5-6-1.5 2-3.25 2.75-5.25 2.25-1.14-.29-1.96-1.12-2.86-2.04C29.42 18.71 27.72 17 24 17z" transform="translate(-14 7)" />
+        </g>
+      </>
+    ),
+  },
 ];
+
+/** Every skill maps to a mark, so the Tech Stack folder is all logos. */
+export const TOOL_BY_NAME: Record<string, Tool> = Object.fromEntries(
+  TOOLS.map(t => [t.name.toLowerCase(), t]),
+);
+
+export const findTool = (name: string) =>
+  TOOL_BY_NAME[name.toLowerCase()] ?? null;
 
 export function ToolIcon({ tool, size = 46 }: { tool: Tool; size?: number }) {
   return (
