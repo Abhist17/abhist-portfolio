@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ME, SOCIALS, THEMES } from "./data";
-import { AppIcon, SocialIcon } from "./icons";
+import { AppIcon } from "./icons";
+import { SocialMark } from "./socials";
+import { COVER } from "./gallery";
 import { AppBody } from "./apps";
 import { APPS, appMeta, fmtDate, fmtTime, useClock, useSystem, type AppId } from "./system";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-const SOCIAL_GLYPH: Record<string, "github" | "twitter" | "linkedin" | "mail"> = {
-  Email: "mail", Twitter: "twitter", GitHub: "github", LinkedIn: "linkedin",
-};
 
 /* ═════════════════════════════════════════════
    PHONE — a springboard, not a shrunken desktop
@@ -51,7 +49,7 @@ export function Springboard() {
             transition={{ duration: 0.45, delay: 0.12 + i * 0.04, ease: EASE }}
             whileTap={{ scale: 0.92 }}
             onClick={() => setApp(a.id)}>
-            <span className="phone-art"><AppIcon kind={a.kind} size={56} src={ME.avatar} /></span>
+            <span className="phone-art"><AppIcon kind={a.kind} size={56} src={COVER} /></span>
             <span className="phone-label">{a.name}</span>
           </motion.button>
         ))}
@@ -68,13 +66,13 @@ export function Springboard() {
       </div>
 
       <div className="phone-dock">
-        {SOCIALS.map(s => {
+        {SOCIALS.filter(s => s.href).map(s => {
           const external = !s.href.startsWith("mailto");
           return (
-            <a key={s.label} href={s.href} aria-label={s.label}
+            <a key={s.id} href={s.href} aria-label={s.label}
               target={external ? "_blank" : undefined}
               rel={external ? "noreferrer" : undefined}>
-              <SocialIcon name={SOCIAL_GLYPH[s.label]} size={17} />
+              <SocialMark id={s.id} size={34} />
             </a>
           );
         })}

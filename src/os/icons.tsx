@@ -203,21 +203,33 @@ export function AppIcon({ kind, size = 64, src }: { kind: string; size?: number;
   }
 }
 
-/* ── social glyphs, 16px line icons ───────── */
+/* ── social glyphs, 16px line icons ─────────
+   Keyed by Social.id from data.ts, so a row can
+   draw itself without a label lookup table.
+   These same paths get scaled up into the brand
+   tiles in socials.tsx. */
 export const Glyph = {
   github: (
     <path d="M8 .2a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.4C3.8 14.4 3.4 13 3.4 13c-.3-.8-.8-1-.8-1-.6-.4 0-.4 0-.4.7 0 1.1.7 1.1.7.6 1.1 1.7.8 2.1.6 0-.5.3-.8.5-1-1.8-.2-3.6-.9-3.6-3.9 0-.9.3-1.6.8-2.1 0-.2-.3-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.5.8 1.2.8 2.1 0 3-1.8 3.7-3.6 3.9.3.2.5.7.5 1.4v2.1c0 .2.1.5.6.4A8 8 0 0 0 8 .2z" />
   ),
-  twitter: (
+  x: (
     <path d="M12.6 1.5h2.5l-5.4 6.2 6.4 8.5h-5l-3.9-5.1-4.5 5.1H.2l5.8-6.6L-.1 1.5h5.1l3.5 4.7zm-.9 13.2h1.4L4.4 2.9H2.9z" />
   ),
   linkedin: (
     <path d="M3.6 5.3H.6V16h3zM2.1.5a1.7 1.7 0 1 0 0 3.5 1.7 1.7 0 0 0 0-3.5zM16 9.7c0-2.9-1.6-4.3-3.7-4.3-1.7 0-2.5.9-2.9 1.6V5.3H6.4V16h3v-6c0-1.2.8-1.8 1.7-1.8s1.6.6 1.6 1.8v6h3z" />
   ),
-  mail: (
+  instagram: (
+    <path d="M4.8.6h6.4A4.2 4.2 0 0 1 15.4 4.8v6.4a4.2 4.2 0 0 1-4.2 4.2H4.8A4.2 4.2 0 0 1 .6 11.2V4.8A4.2 4.2 0 0 1 4.8.6zm0 1.6A2.6 2.6 0 0 0 2.2 4.8v6.4a2.6 2.6 0 0 0 2.6 2.6h6.4a2.6 2.6 0 0 0 2.6-2.6V4.8a2.6 2.6 0 0 0-2.6-2.6zM8 4.2A3.8 3.8 0 1 1 8 11.8 3.8 3.8 0 0 1 8 4.2zm0 1.6a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4zm4.2-2.4a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+  ),
+  telegram: (
+    <path d="M15.3 2.1L13.1 13.6c-.2.8-.7 1-1.4.6l-3.6-2.6-1.7 1.7c-.2.2-.4.3-.7.3l.3-3.6 6.6-6c.3-.3-.1-.4-.5-.2L3.9 8.9l-3.3-1c-.7-.2-.7-.7.1-1L14.2 1.2c.7-.2 1.3.2 1.1.9z" />
+  ),
+  email: (
     <path d="M1.5 2.5h13c.6 0 1 .4 1 1v9c0 .6-.4 1-1 1h-13c-.6 0-1-.4-1-1v-9c0-.6.4-1 1-1zm.4 1.7L8 8.9l6.1-4.7v-.2H1.9z" />
   ),
 };
+
+export type GlyphId = keyof typeof Glyph;
 
 export function SocialIcon({ name, size = 15 }: { name: keyof typeof Glyph; size?: number }) {
   return (

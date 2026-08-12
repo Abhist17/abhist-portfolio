@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lazy, Suspense } from "react";
 import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
-import { SocialIcon } from "./icons";
+import { SocialMark, tintOf } from "./socials";
+import { SHOTS } from "./gallery";
 import { ToolIcon, findTool } from "./tech";
 import { LANG_COLOR, timeAgo, useRepos, type Repo } from "./live";
 import { CONFIG } from "./config";
@@ -291,51 +292,152 @@ function StackApp() {
 }
 
 /* ═════════════════════════════════════════════
-   CONTACT
+   CONTACT — a wall of brand tiles
 ═════════════════════════════════════════════ */
-const GLYPH_FOR: Record<string, "github" | "twitter" | "linkedin" | "mail"> = {
-  Email: "mail", Twitter: "twitter", GitHub: "github", LinkedIn: "linkedin",
-};
-
 function ContactApp() {
+  const live = SOCIALS.filter(s => s.href);
+  const email = live.find(s => s.id === "email");
+  const rest = live.filter(s => s.id !== "email");
+  const [copied, setCopied] = useState(false);
+
+  /* the "Copied" flash undoes itself */
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 1600);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  const copy = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); setCopied(true); } catch { /* clipboard blocked */ }
+  };
+
   return (
     <div className="app">
-      <AppHead title="Contact" sub={`${SOCIALS.length} ways to reach me`} />
-      <div className="doc" style={{ overflow: "auto" }}>
-      <p className="doc-p">
-        Have a project? Say hello — I read everything.
-      </p>
-      <div className="links">
-        {SOCIALS.map(s => {
-          const external = !s.href.startsWith("mailto");
-          return (
-            <a className="link-row" key={s.label} href={s.href}
-              target={external ? "_blank" : undefined}
-              rel={external ? "noreferrer" : undefined}>
-              <span className="link-ico"><SocialIcon name={GLYPH_FOR[s.label]} /></span>
-              <span className="link-label">{s.label}</span>
-              <span className="link-handle muted">{s.handle}</span>
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+      <AppHead title="Contact" sub={`${live.length} ways to reach me`} />
+
+      <div className="contact">
+        <p className="contact-lede">
+          Building something in Web3 — or want a second pair of eyes on a contract?
+          Say hello. I read everything.
+        </p>
+
+        {email && (
+          <div className="mail-card" style={{ ["--tint" as string]: tintOf(email.id) }}>
+            <span className="mail-art"><SocialMark id={email.id} size={52} /></span>
+            <span className="mail-body">
+              <span className="kicker">{email.note}</span>
+              <a className="mail-addr" href={email.href}>{email.handle}</a>
+            </span>
+            <span className="mail-acts">
+              <a className="btn" href={email.href}>Write</a>
+              <button className="btn btn-ghost" onClick={() => copy(email.handle)}>
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </span>
+          </div>
+        )}
+
+        <div className="social-grid">
+          {rest.map(s => (
+            <a className="social-card" key={s.id} href={s.href}
+              target="_blank" rel="noreferrer"
+              style={{ ["--tint" as string]: tintOf(s.id) }}>
+              <span className="social-art"><SocialMark id={s.id} size={46} /></span>
+              <span className="social-text">
+                <strong>{s.label}</strong>
+                <span className="social-handle">{s.handle}</span>
+                <span className="social-note">{s.note}</span>
+              </span>
+              <svg className="social-go" width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
                 <path d="M2 10L10 2M10 2H3.5M10 2V8.5" stroke="currentColor" strokeWidth="1.3" />
               </svg>
             </a>
-          );
-        })}
-      </div>
-      <p className="hint">Based in {ME.location} · {ME.status}</p>
+          ))}
+        </div>
+
+        <p className="hint contact-foot">
+          <i className="dot-live" /> {ME.status} · based in {ME.location} · replies within a day
+        </p>
       </div>
     </div>
   );
 }
 
 /* ═════════════════════════════════════════════
-   PHOTO
+   PHOTOS — the library, then one picture at a time
 ═════════════════════════════════════════════ */
+type Zoom = "s" | "m" | "l";
+
 function PhotoApp() {
+  const [zoom, setZoom] = useState<Zoom>("m");
+  /* null = the grid; a number = that picture, full size */
+  const [open, setOpen] = useState<number | null>(null);
+
+  const count = SHOTS.length;
+  const step = (d: number) => setOpen(i => (i === null ? i : (i + d + count) % count));
+
+  /* arrows walk the album, escape comes back to the grid */
+  useEffect(() => {
+    if (open === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape")     { e.stopPropagation(); setOpen(null); }
+      if (e.key === "ArrowRight") step(1);
+      if (e.key === "ArrowLeft")  step(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, count]);
+
+  const shot = open === null ? null : SHOTS[open];
+
   return (
-    <div className="photo-app">
-      <img src={ME.avatar} alt={ME.name} />
-      <p className="hint">Me.jpg — {ME.location}</p>
+    <div className="app photos">
+      <header className="app-head photos-head">
+        <div>
+          <h2>Photos</h2>
+          <p>{count} {count === 1 ? "picture" : "pictures"} · {ME.location}</p>
+        </div>
+        <div className="seg seg-sm photos-zoom" role="group" aria-label="Thumbnail size">
+          {(["s", "m", "l"] as Zoom[]).map(z => (
+            <button key={z} className={zoom === z ? "on" : ""} onClick={() => setZoom(z)}
+              aria-label={`${z === "s" ? "Small" : z === "m" ? "Medium" : "Large"} thumbnails`}>
+              {z.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      <div className={`shot-grid zoom-${zoom}`}>
+        {SHOTS.map((s, i) => (
+          <button className="shot" key={s.key} onClick={() => setOpen(i)}
+            aria-label={`Open ${s.caption}`}>
+            <img src={s.src} alt={s.caption} loading="lazy" />
+            <span className="shot-cap">{s.caption}</span>
+          </button>
+        ))}
+      </div>
+
+      {shot && (
+        <div className="viewer" onClick={() => setOpen(null)}>
+          <img className="viewer-img" src={shot.src} alt={shot.caption}
+            onClick={e => e.stopPropagation()} />
+
+          {count > 1 && (
+            <>
+              <button className="viewer-nav prev" aria-label="Previous"
+                onClick={e => { e.stopPropagation(); step(-1); }}>‹</button>
+              <button className="viewer-nav next" aria-label="Next"
+                onClick={e => { e.stopPropagation(); step(1); }}>›</button>
+            </>
+          )}
+
+          <div className="viewer-bar" onClick={e => e.stopPropagation()}>
+            <span className="viewer-cap">{shot.caption}</span>
+            <span className="viewer-count">{open! + 1} / {count}</span>
+            <button className="viewer-close" onClick={() => setOpen(null)} aria-label="Back to library">✕</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -350,7 +452,7 @@ const BANNER: Line[] = [
   { kind: "out", text: `Type "help" for the command list.` },
 ];
 
-const FILES = ["about.txt", "projects/", "background/", "skills.txt", "contact.txt"];
+const FILES = ["about.txt", "projects/", "background/", "skills.txt", "contact.txt", "photos/"];
 
 function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
   const [cmd, ...args] = raw.trim().split(/\s+/);
@@ -392,6 +494,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       if (f === "contact.txt") return SOCIALS.map(s => ({ kind: "out" as const, text: `${s.label.padEnd(10)} ${s.handle}` }));
       if (f === "projects")    return PROJECTS.map(p => ({ kind: "out" as const, text: `${p.n}  ${p.title}` }));
       if (f === "background")  return EXP.map(e => ({ kind: "out" as const, text: `${e.period.padEnd(11)} ${e.org} — ${e.role}` }));
+      if (f === "photos")      return SHOTS.map((s, i) => ({ kind: "out" as const, text: `${String(i + 1).padStart(2, "0")}  ${s.caption}` }));
       return [{ kind: "err", text: `cat: ${arg}: No such file or directory` }];
     }
 

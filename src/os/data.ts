@@ -50,14 +50,22 @@ export const EXP: Exp[] = [
   { role:"B.Tech CS",   org:"IIIT Nagpur",    period:"2024—2028", desc:"Computer Science. Competitive programming. Building things that matter.",                           link:"https://iiitn.ac.in/" },
 ];
 
-export type Social = { label: string; handle: string; href: string };
+/* `id` picks the brand mark (icons.tsx / socials.tsx).
+   `note` is the one line the Contact card says about the place.
+   Leave `href` empty and the row disappears everywhere. */
+export type SocialId = "email" | "x" | "instagram" | "github" | "linkedin" | "telegram";
+export type Social = { id: SocialId; label: string; handle: string; href: string; note: string };
 
 export const SOCIALS: Social[] = [
-  { label:"Email",    handle:"abhistcodes17@gmail.com", href:"mailto:abhistcodes17@gmail.com" },
-  { label:"Twitter",  handle:"@_abhist_",               href:"https://x.com/_abhist_" },
-  { label:"GitHub",   handle:"Abhist17",                href:"https://github.com/Abhist17" },
-  { label:"LinkedIn", handle:"abhist-k-...",            href:"https://www.linkedin.com/in/abhist-k-845079323/" },
+  { id:"email",     label:"Email",     handle:"abhistcodes17@gmail.com", href:"mailto:abhistcodes17@gmail.com",                  note:"Best for work — I read everything." },
+  { id:"x",         label:"X",         handle:"@_abhist_",               href:"https://x.com/_abhist_",                          note:"Shipping logs, Web3 takes, threads." },
+  { id:"telegram",  label:"Telegram",  handle:"@abhistcodes",            href:"https://t.me/abhistcodes",                        note:"Fastest reply. DMs open." },
+  { id:"github",    label:"GitHub",    handle:"Abhist17",                href:"https://github.com/Abhist17",                     note:"Contracts, tools, everything public." },
+  { id:"instagram", label:"Instagram", handle:"@oyeabhist",              href:"https://instagram.com/oyeabhist",                 note:"The off-chain life." },
+  { id:"linkedin",  label:"LinkedIn",  handle:"abhist-k",                href:"https://www.linkedin.com/in/abhist-k-845079323/", note:"Résumé stuff and formal intros." },
 ];
+
+export const social = (id: SocialId) => SOCIALS.find(s => s.id === id && s.href) ?? null;
 
 export const STATS: [string, string][] = [
   ["1.5y", "Web3 exp"],

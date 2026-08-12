@@ -565,24 +565,156 @@
   background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
 }
 
-/* contact */
-.links { display: flex; flex-direction: column; margin-top: 6px; }
-.link-row {
-  display: grid; grid-template-columns: 26px 82px minmax(0,1fr) 14px;
-  gap: 10px; align-items: center;
-  padding: 12px 4px; border-bottom: 1px solid var(--hair);
-  text-decoration: none; color: var(--ink-soft);
+/* ── contact ───────────────────────────────
+   Every card borrows its own brand colour
+   through --tint, set inline per row. */
+.contact { padding: 4px 26px 28px; overflow: auto; }
+.app > .contact { flex: 1; min-height: 0; }
+.contact-lede {
+  font-size: 13.5px; line-height: 1.66; color: var(--ink-soft);
+  max-width: 46ch; margin-bottom: 18px;
 }
-.link-row:last-child { border-bottom: 0; }
-.link-row:hover { color: var(--accent); }
-.link-ico { display: flex; }
-.link-label { font-weight: 500; color: var(--ink); font-size: 13px; }
-.link-row:hover .link-label { color: var(--accent); }
-.link-handle { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* photo */
-.photo-app { padding: 16px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
-.photo-app img { width: 100%; flex: 1; min-height: 0; object-fit: cover; border-radius: 8px; }
+/* the email card leads — it's the one that matters */
+.mail-card {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 15px 16px; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(20,20,26,.045), rgba(20,20,26,.02));
+  border: 1px solid var(--hair);
+}
+.mail-art { display: flex; flex-shrink: 0; }
+.mail-body { display: flex; flex-direction: column; flex: 1; min-width: 160px; }
+.mail-body .kicker { margin-bottom: 4px; }
+.mail-addr {
+  font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: none;
+  letter-spacing: -0.01em; word-break: break-all;
+}
+.mail-addr:hover { color: var(--tint, var(--accent)); }
+.mail-acts { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-ghost {
+  background: transparent; color: var(--ink);
+  border: 1px solid rgba(20,20,26,.18);
+}
+.btn-ghost:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* the rest as a wall of tiles */
+.social-grid {
+  display: grid; gap: 10px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.social-card {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 14px; border-radius: 14px;
+  text-decoration: none; color: var(--ink-soft);
+  background: rgba(255,255,255,.5);
+  border: 1px solid var(--hair);
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .3s ease;
+}
+/* a wash of the brand colour, only on hover */
+.social-card::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(120deg, var(--tint), transparent 72%);
+  opacity: 0; transition: opacity .3s ease; pointer-events: none;
+}
+.social-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--tint) 42%, transparent);
+  box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--tint) 65%, transparent);
+}
+.social-card:hover::before { opacity: .07; }
+.social-art { display: flex; flex-shrink: 0; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.social-card:hover .social-art { transform: scale(1.07) rotate(-2deg); }
+.social-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.social-text strong { font-size: 13.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.social-card:hover .social-text strong { color: var(--tint); }
+.social-handle {
+  font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.social-note { font-size: 11px; color: var(--ink-mute); line-height: 1.35; }
+.social-go { position: absolute; top: 12px; right: 12px; opacity: 0; transition: opacity .3s ease; color: var(--tint); }
+.social-card:hover .social-go { opacity: 1; }
+
+.contact-foot { display: flex; align-items: center; gap: 7px; margin-top: 18px; }
+.dot-live {
+  width: 6px; height: 6px; border-radius: 50%; background: #35c759;
+  box-shadow: 0 0 0 3px rgba(53,199,89,.18);
+}
+
+/* ── photos ────────────────────────────────
+   A library of squares, then one picture at a
+   time over the top of it. */
+.photos { position: relative; overflow: hidden; }
+.photos-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.photos-zoom { flex-shrink: 0; }
+
+.shot-grid {
+  flex: 1; min-height: 0; overflow: auto;
+  display: grid; gap: 8px; align-content: start;
+  padding: 0 26px 26px;
+}
+.shot-grid.zoom-s { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+.shot-grid.zoom-m { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.shot-grid.zoom-l { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+.shot {
+  position: relative; overflow: hidden;
+  aspect-ratio: 1; border-radius: 10px; padding: 0;
+  background: rgba(20,20,26,.06);
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+}
+.shot img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.shot:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -12px rgba(20,20,26,.5); }
+.shot:hover img { transform: scale(1.06); }
+/* the caption only surfaces on hover, the way a photo app does it */
+.shot-cap {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 16px 9px 7px; text-align: left;
+  font-size: 10.5px; line-height: 1.25; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.68));
+  opacity: 0; transition: opacity .25s ease;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.shot:hover .shot-cap, .shot:focus-visible .shot-cap { opacity: 1; }
+.shot-grid.zoom-s .shot-cap { display: none; }
+
+/* the single-picture view lives inside the window, not over the desktop */
+.viewer {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  padding: 34px 46px 54px;
+  background: rgba(12,12,16,.9);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  animation: viewer-in .24s cubic-bezier(.22,1,.36,1);
+}
+@keyframes viewer-in { from { opacity: 0; } to { opacity: 1; } }
+.viewer-img {
+  max-width: 100%; max-height: 100%;
+  object-fit: contain; border-radius: 6px;
+  box-shadow: 0 26px 60px -20px rgba(0,0,0,.8);
+}
+.viewer-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 52px; border-radius: 9px;
+  font-size: 26px; line-height: 1; color: #fff;
+  background: rgba(255,255,255,.1);
+  transition: background .2s ease;
+}
+.viewer-nav:hover { background: rgba(255,255,255,.22); }
+.viewer-nav.prev { left: 8px; }
+.viewer-nav.next { right: 8px; }
+.viewer-bar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 16px; color: rgba(255,255,255,.9);
+  background: linear-gradient(transparent, rgba(0,0,0,.5));
+}
+.viewer-cap { font-size: 12.5px; font-weight: 500; flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-count { font-size: 11px; font-variant-numeric: tabular-nums; opacity: .7; }
+.viewer-close { font-size: 13px; opacity: .8; }
+.viewer-close:hover { opacity: 1; }
 
 /* terminal */
 .term { height: 100%; background: #101014; padding: 14px 16px; overflow: hidden; cursor: text; }
@@ -745,17 +877,18 @@
 .phone-label { font-size: 11px; text-align: center; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
 .phone-themes { display: flex; gap: 11px; justify-content: center; margin: 34px 0 22px; }
 .phone-dock {
-  display: flex; justify-content: center; gap: 10px;
-  padding: 12px; border-radius: 20px;
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+  padding: 11px; border-radius: 20px;
   background: rgba(255,255,255,.18);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,.3);
 }
 .phone-dock a {
-  width: 44px; height: 44px; border-radius: 13px;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.2); color: #fff;
+  border-radius: 11px; color: #fff;
+  transition: transform .25s cubic-bezier(.22,1,.36,1);
 }
+.phone-dock a:active { transform: scale(.92); }
 .phone-foot {
   margin-top: 22px; text-align: center;
   font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .6;

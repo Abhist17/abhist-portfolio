@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion, useDragControls, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ME, SOCIALS, STATS, THEMES, PROJECTS, SKILLS } from "./data";
 import { AppIcon, SocialIcon } from "./icons";
+import { COVER } from "./gallery";
 import { AppBody } from "./apps";
 import { CONFIG } from "./config";
 
@@ -74,10 +75,6 @@ const MENUS: { label: string; items: { label: string; app?: AppId; href?: string
   ]},
 ];
 
-const SOCIAL_GLYPH: Record<string, "github" | "twitter" | "linkedin" | "mail"> = {
-  Email: "mail", Twitter: "twitter", GitHub: "github", LinkedIn: "linkedin",
-};
-
 export function MenuBar() {
   const { open } = useSystem();
   const now = useClock();
@@ -114,9 +111,9 @@ export function MenuBar() {
       </div>
 
       <div className="bar-right">
-        {SOCIALS.filter(s => s.label !== "Email").map(s => (
-          <a key={s.label} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} className="bar-social">
-            <SocialIcon name={SOCIAL_GLYPH[s.label]} size={14} />
+        {SOCIALS.filter(s => s.href && s.id !== "email").map(s => (
+          <a key={s.id} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} className="bar-social">
+            <SocialIcon name={s.id} size={14} />
           </a>
         ))}
         <span className="bar-clock">{fmtDate(now)}</span>
@@ -143,7 +140,7 @@ export function DesktopIcons() {
           onClick={() => setSel(a.id)}
           onDoubleClick={() => open(a.id)}
           aria-label={`${a.name} — double-click to open`}>
-          <span className="icon-art"><AppIcon kind={a.kind} size={84} src={ME.avatar} /></span>
+          <span className="icon-art"><AppIcon kind={a.kind} size={84} src={COVER} /></span>
           <span className="icon-label">{a.name}</span>
         </button>
       ))}
@@ -358,7 +355,7 @@ function DockTile({ app, mouseX, isOpen, onOpen }: {
   return (
     <button ref={ref} className="dock-item" onClick={onOpen} aria-label={app.name}>
       <motion.span className="dock-art" style={{ scale, y: lift }}>
-        <AppIcon kind={app.kind} size={46} src={ME.avatar} />
+        <AppIcon kind={app.kind} size={46} src={COVER} />
       </motion.span>
       <span className="dock-tip">{app.name}</span>
       <span className={`dock-dot ${isOpen ? "on" : ""}`} />
