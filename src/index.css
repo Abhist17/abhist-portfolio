@@ -85,20 +85,43 @@
   background-size: cover;
 }
 
-/* A real photograph blurred past recognition. Tonal variation from an
-   actual image is what makes a wallpaper read as photographic rather
-   than as a gradient; the theme colour sits on top of it. */
+/* The wallpaper proper. The theme decides how it is developed — left warm,
+   pulled to black and white, or washed into a duotone — so one photograph
+   covers every palette. */
 .os-photo {
-  position: absolute; inset: -12%;
+  position: absolute; inset: 0;
   pointer-events: none;
-  background-image: url("/photos/abhiii.jpg");
+  background-image: url("/photos/wallpaper.jpg");
   background-size: cover;
-  background-position: 50% 35%;
-  /* greyscaled so it contributes light and shade only — hue stays the
-     theme's, otherwise the photo's colours fight the wallpaper */
-  filter: blur(72px) grayscale(1) contrast(1.2);
-  opacity: .42;
-  mix-blend-mode: soft-light;
+  /* the herd sits low in the frame, so bias the crop downward */
+  background-position: 50% 62%;
+  filter: var(--wall-filter, none);
+  transition: filter 1.1s cubic-bezier(.22,1,.36,1);
+}
+
+/* The duotone wash. "color" blending keeps the photo's luminance and swaps
+   only its hue, which is why a grayscale base is what feeds it.
+
+   This has to be a sibling of .os-photo, not a child: `filter` applies to an
+   element *after* its descendants have composited, so a tint nested inside
+   the photo would be blended first and then grayscaled straight back out. */
+.os-tint {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: var(--wall-tint, transparent);
+  mix-blend-mode: var(--wall-blend, normal);
+  transition: background 1.1s cubic-bezier(.22,1,.36,1);
+}
+
+/* Readability scrim. A sunrise is bright where the interface puts white
+   text, so the desktop darkens the top bar, the dock and the left column
+   the intro and icons sit in — without flattening the middle of the frame. */
+.os-scrim {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(100deg, rgba(8,10,16,.62) 0%, rgba(8,10,16,.34) 34%, rgba(8,10,16,0) 62%),
+    linear-gradient(to bottom, rgba(8,10,16,.5) 0%, rgba(8,10,16,0) 16%, rgba(8,10,16,0) 74%, rgba(8,10,16,.5) 100%);
 }
 
 /* fine grain so the gradient never bands */
@@ -141,6 +164,12 @@
   cursor: pointer;
   text-align: center;
   color: #fff;
+  /* the clock and the sign-in block are white on whatever the wallpaper is
+     doing behind them, and a sunrise is at its brightest exactly there */
+  background:
+    radial-gradient(72% 46% at 50% 16%, rgba(8,10,16,.52) 0%, rgba(8,10,16,0) 72%),
+    radial-gradient(52% 34% at 50% 80%, rgba(8,10,16,.46) 0%, rgba(8,10,16,0) 74%),
+    linear-gradient(to bottom, rgba(8,10,16,.34) 0%, rgba(8,10,16,.08) 42%, rgba(8,10,16,.3) 100%);
 }
 .lock-date { font-size: 15px; font-weight: 500; letter-spacing: .01em; opacity: .92; }
 .lock-time {

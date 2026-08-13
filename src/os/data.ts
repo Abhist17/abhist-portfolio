@@ -74,11 +74,39 @@ export const STATS: [string, string][] = [
 ];
 
 /* ── wallpaper themes ─────────────────────── */
-export type ThemeId = "midnight" | "solana" | "ember" | "graphite";
+export type ThemeId = "sunrise" | "mono" | "midnight" | "solana" | "ember" | "graphite";
 
-export const THEMES: { id: ThemeId; name: string; swatch: string; sky: string[]; light: boolean }[] = [
-  { id: "midnight", name: "Midnight", swatch: "#2a4d8f", light: false, sky: ["#0b1733", "#1e3f7a", "#5b8bd0", "#a9c6e8"] },
-  { id: "solana",   name: "Solana",   swatch: "#7d4fd8", light: false, sky: ["#170b2e", "#3d1c6e", "#7d4fd8", "#41e0b3"] },
-  { id: "ember",    name: "Ember",    swatch: "#c4462f", light: false, sky: ["#1d0f0b", "#5c2317", "#c4462f", "#f0a071"] },
-  { id: "graphite", name: "Graphite", swatch: "#2c2c2e", light: false, sky: ["#0a0a0a", "#1c1c1e", "#3a3a3c", "#6e6e73"] },
+/* Each theme is a treatment of the same photograph rather than a palette of
+   its own. `filter` runs on the image; `tint` is a wash laid over it with
+   `blend` — "color" keeps the photo's light and shade and replaces only the
+   hue, which is what turns one sunrise into a duotone in any colour. `sky`
+   is the gradient underneath: it shows for the moment before the photo
+   decodes, so it has to be in the same key as the treatment above it. */
+export const THEMES: {
+  id: ThemeId; name: string; swatch: string; sky: string[]; light: boolean;
+  filter: string; tint: string; blend: string;
+}[] = [
+  { id: "sunrise",  name: "Sunrise",  swatch: "#d9973f", light: false,
+    sky: ["#3b2a12", "#8a6224", "#d09a4a", "#f2dcae"],
+    filter: "saturate(1.06) contrast(1.03)", tint: "transparent", blend: "normal" },
+
+  { id: "mono",     name: "Mono",     swatch: "#9a9a9e", light: false,
+    sky: ["#141416", "#3a3a3e", "#7a7a80", "#cfcfd4"],
+    filter: "grayscale(1) contrast(1.09)", tint: "transparent", blend: "normal" },
+
+  { id: "midnight", name: "Midnight", swatch: "#2a4d8f", light: false,
+    sky: ["#0b1733", "#1e3f7a", "#5b8bd0", "#a9c6e8"],
+    filter: "grayscale(1) contrast(1.05)", tint: "rgba(52, 104, 186, .82)", blend: "color" },
+
+  { id: "solana",   name: "Solana",   swatch: "#7d4fd8", light: false,
+    sky: ["#170b2e", "#3d1c6e", "#7d4fd8", "#c9b0f2"],
+    filter: "grayscale(1) contrast(1.05)", tint: "rgba(134, 84, 220, .82)", blend: "color" },
+
+  { id: "ember",    name: "Ember",    swatch: "#c4462f", light: false,
+    sky: ["#1d0f0b", "#5c2317", "#c4462f", "#f0a071"],
+    filter: "grayscale(1) contrast(1.06)", tint: "rgba(198, 84, 44, .8)", blend: "color" },
+
+  { id: "graphite", name: "Graphite", swatch: "#2c2c2e", light: false,
+    sky: ["#0a0a0a", "#1c1c1e", "#3a3a3c", "#6e6e73"],
+    filter: "grayscale(1) contrast(1.2) brightness(.78)", tint: "transparent", blend: "normal" },
 ];

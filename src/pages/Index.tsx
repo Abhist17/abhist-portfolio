@@ -22,8 +22,13 @@ function Wallpaper({ children, phone }: { children: React.ReactNode; phone: bool
         ["--sky-1" as string]: t.sky[1],
         ["--sky-2" as string]: t.sky[2],
         ["--sky-3" as string]: t.sky[3],
+        ["--wall-filter" as string]: t.filter,
+        ["--wall-tint" as string]: t.tint,
+        ["--wall-blend" as string]: t.blend,
       }}>
       <div className="os-photo" aria-hidden />
+      <div className="os-tint" aria-hidden />
+      <div className="os-scrim" aria-hidden />
       {children}
     </div>
   );

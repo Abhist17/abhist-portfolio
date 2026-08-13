@@ -108,7 +108,7 @@ export function System({ children }: { children: React.ReactNode }) {
     try { return sessionStorage.getItem(SEEN_BOOT) ? "lock" : "boot"; } catch { return "boot"; }
   });
   const [windows, setWindows] = useState<WinState[]>([]);
-  const [theme, setTheme] = useState<ThemeId>("midnight");
+  const [theme, setTheme] = useState<ThemeId>("sunrise");
   const zRef = useRef(1);
 
   const focus = useCallback((id: AppId) => {
