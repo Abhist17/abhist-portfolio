@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useDragControls, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useDragControls, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ME, SOCIALS, STATS, THEMES, PROJECTS, SKILLS } from "./data";
 import { AppIcon, SocialIcon } from "./icons";
 import { COVER } from "./gallery";
@@ -9,7 +9,8 @@ import { CONFIG } from "./config";
 import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
 import { NowPlaying } from "./music";
 import {
-  APPS, appMeta, fmtDate, fmtTime, hasApp, useClock, useSystem, type AppId, type WinState,
+  APPS, appMeta, fmtDate, fmtTime, hasApp, MIN_H, MIN_W, useClock, useSystem,
+  type AppId, type WinState,
 } from "./system";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -20,17 +21,24 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function LockScreen() {
   const { boot } = useSystem();
   const now = useClock();
+  const [leaving, setLeaving] = useState(false);
+
+  /* The fade is a CSS animation and the unmount is a timer, so the screen
+     comes off the desk whether or not the animation ever reports back. */
+  const unlock = () => {
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(boot, 460);
+  };
 
   return (
-    <motion.div
-      className="lock"
-      onClick={boot}
+    <div
+      className={`lock ${leaving ? "is-leaving" : ""}`}
+      onClick={unlock}
       role="button"
       tabIndex={0}
       aria-label="Unlock"
-      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") boot(); }}
-      exit={{ opacity: 0, scale: 1.06, filter: "blur(12px)" }}
-      transition={{ duration: 0.8, ease: EASE }}>
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") unlock(); }}>
 
       <div className="lock-clock anim-drop">
         <p className="lock-date">{fmtDate(now)}</p>
@@ -50,20 +58,24 @@ export function LockScreen() {
       </div>
 
       <p className="lock-hint">Click anywhere to unlock</p>
-    </motion.div>
+    </div>
   );
 }
 
 /* ═════════════════════════════════════════════
    MENU BAR
 ═════════════════════════════════════════════ */
-const MENUS: { label: string; items: { label: string; app?: AppId; href?: string }[] }[] = [
+type MenuItem = { label: string; app?: AppId; href?: string; act?: "search" | "reset"; hint?: string };
+
+const MENUS: { label: string; items: MenuItem[] }[] = [
   { label: "File", items: [
     { label: "Open Projects", app: "projects" },
     { label: "Open Terminal", app: "terminal" },
     { label: "Open Resume", app: "resume" },
+    { label: "Reset Desktop", act: "reset" },
   ]},
   { label: "Go", items: [
+    { label: "Search…", act: "search", hint: "⌘K" },
     { label: "About Me", app: "about" },
     { label: "Background", app: "background" },
     { label: "Stack", app: "stack" },
@@ -76,7 +88,7 @@ const MENUS: { label: string; items: { label: string; app?: AppId; href?: string
 ];
 
 export function MenuBar() {
-  const { open } = useSystem();
+  const { open, setSpotlight, resetDesktop } = useSystem();
   const now = useClock();
   const [menu, setMenu] = useState<string | null>(null);
 
@@ -93,24 +105,40 @@ export function MenuBar() {
               onMouseEnter={() => setMenu(v => (v ? m.label : v))}>
               {m.label}
             </button>
-            <AnimatePresence>
-              {menu === m.label && (
-                <motion.div className="dropdown"
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.16 }}>
-                  {m.items.filter(it => !it.app || hasApp(it.app)).map(it => it.app ? (
-                    <button key={it.label} onClick={() => { open(it.app!); setMenu(null); }}>{it.label}</button>
-                  ) : (
+            {/* plain conditional, like the other overlays — an exit that never
+                finished left the menu hanging open over the desk */}
+            {menu === m.label && (
+                <div className="dropdown">
+                  {m.items.filter(it => !it.app || hasApp(it.app)).map(it => it.href ? (
                     <a key={it.label} href={it.href} target="_blank" rel="noreferrer" onClick={() => setMenu(null)}>{it.label}</a>
+                  ) : (
+                    <button
+                      key={it.label}
+                      onClick={() => {
+                        if (it.app) open(it.app);
+                        else if (it.act === "search") setSpotlight(true);
+                        else if (it.act === "reset") resetDesktop();
+                        setMenu(null);
+                      }}>
+                      {it.label}
+                      {it.hint && <kbd className="menu-hint">{it.hint}</kbd>}
+                    </button>
                   ))}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
           </div>
         ))}
       </div>
 
       <div className="bar-right">
+        {/* a shortcut nobody is told about is a shortcut nobody uses */}
+        <button className="bar-search" onClick={() => setSpotlight(true)} aria-label="Search">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <circle cx="7" cy="7" r="4.6" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M10.6 10.6L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <kbd>⌘K</kbd>
+        </button>
         {SOCIALS.filter(s => s.href && s.id !== "email").map(s => (
           <a key={s.id} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} className="bar-social">
             <SocialIcon name={s.id} size={14} />
@@ -286,21 +314,53 @@ export function Widgets() {
 /* ═════════════════════════════════════════════
    WINDOW
 ═════════════════════════════════════════════ */
-/* `win` is passed in rather than looked up: while AnimatePresence plays a
-   window's exit animation it has already been removed from state, so a
-   lookup here would come back undefined mid-flight. */
+/* `win` is passed in rather than looked up: a closing window is still being
+   rendered after the close is asked for, and a lookup by id would race the
+   manager dropping it. */
+/* Which edges a handle drags. "e" widens, "s" heightens, "se" both. */
+const EDGES = ["e", "s", "se"] as const;
+
 function Window({ win }: { win: WinState }) {
-  const { close, focus, minimise, zoom, move, topId, open } = useSystem();
+  const { close, focus, minimise, zoom, move, resize, topId, open } = useSystem();
   const id = win.id;
   const meta = appMeta(id);
   const controls = useDragControls();
   const ref = useRef<HTMLDivElement>(null);
   const active = topId === id;
 
+  /* Resizing runs on the window rather than through React state per frame:
+     the pointer moves far faster than a re-render, and committing only on
+     release keeps the drag smooth on a slow machine. */
+  const startResize = (edge: typeof EDGES[number]) => (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    focus(id);
+
+    const node = ref.current;
+    if (!node) return;
+    const x0 = e.clientX, y0 = e.clientY;
+    const w0 = win.w, h0 = win.h;
+    let w = w0, h = h0;
+
+    const onMove = (ev: PointerEvent) => {
+      if (edge !== "s") w = Math.max(MIN_W, w0 + (ev.clientX - x0));
+      if (edge !== "e") h = Math.max(MIN_H, h0 + (ev.clientY - y0));
+      node.style.width = `${w}px`;
+      node.style.height = `${h}px`;
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      resize(id, w, h);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
   return (
     <motion.div
       ref={ref}
-      className={`win ${active ? "is-active" : ""}`}
+      className={`win ${active ? "is-active" : ""} ${win.closing ? "is-closing" : ""}`}
       style={{ width: win.w, height: win.h, zIndex: 100 + win.z }}
       initial={{ opacity: 0, scale: 0.9, y: win.y + 18, x: win.x }}
       animate={{
@@ -309,7 +369,6 @@ function Window({ win }: { win: WinState }) {
         x: win.x, y: win.y,
         pointerEvents: win.minimised ? "none" : "auto",
       }}
-      exit={{ opacity: 0, scale: 0.93, transition: { duration: 0.18, ease: "easeIn" } }}
       transition={{
         default: { type: "spring", stiffness: 420, damping: 32, mass: 0.7 },
         opacity: { duration: 0.18 },
@@ -338,17 +397,25 @@ function Window({ win }: { win: WinState }) {
       <div className="win-body">
         <AppBody id={id} open={open} />
       </div>
+
+      {/* a zoomed window is pinned to the viewport, so it has nothing to drag */}
+      {!win.zoomed && EDGES.map(edge => (
+        <span
+          key={edge}
+          className={`win-grip grip-${edge}`}
+          onPointerDown={startResize(edge)}
+          aria-hidden
+        />
+      ))}
     </motion.div>
   );
 }
 
 export function Windows() {
   const { windows } = useSystem();
-  return (
-    <AnimatePresence>
-      {windows.map(w => <Window key={w.id} win={w} />)}
-    </AnimatePresence>
-  );
+  /* No AnimatePresence: its exit never completed here, so closed windows were
+     left on the desk at full opacity. The manager drops them itself. */
+  return <>{windows.map(w => <Window key={w.id} win={w} />)}</>;
 }
 
 /* ═════════════════════════════════════════════

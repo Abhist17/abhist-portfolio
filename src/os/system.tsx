@@ -21,6 +21,9 @@ export type WinState = {
   z: number;
   minimised: boolean;
   zoomed: boolean;
+  /* set for the moment between the close being asked for and the node going
+     away; a closing window is not live for focus, persistence or shortcuts */
+  closing?: boolean;
   /* geometry to restore when un-zooming */
   prev?: { x: number; y: number; w: number; h: number };
 };
@@ -69,11 +72,20 @@ type SystemCtx = {
   minimise: (id: AppId) => void;
   zoom: (id: AppId) => void;
   move: (id: AppId, x: number, y: number) => void;
+  resize: (id: AppId, w: number, h: number) => void;
   isOpen: (id: AppId) => boolean;
   topId: AppId | null;
   theme: ThemeId;
   setTheme: (t: ThemeId) => void;
+  /* ⌘K search */
+  spotlight: boolean;
+  setSpotlight: (v: boolean) => void;
+  resetDesktop: () => void;
 };
+
+/* the smallest a window may be dragged down to */
+export const MIN_W = 340;
+export const MIN_H = 220;
 
 const Ctx = createContext<SystemCtx | null>(null);
 
@@ -101,14 +113,32 @@ function spawn(id: AppId, count: number): WinState {
 }
 
 const SEEN_BOOT = "abhistos.booted";
+const SESSION = "abhistos.session";
+
+type Session = { windows: WinState[]; theme: ThemeId };
+
+/* The desk is restored the way it was left. Anything unreadable, or naming
+   an app that no longer exists, is dropped rather than trusted — a stale
+   session must never be able to open a window with no metadata behind it. */
+function readSession(): Session | null {
+  try {
+    const raw = localStorage.getItem(SESSION);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Session;
+    if (!Array.isArray(s.windows)) return null;
+    return { theme: s.theme, windows: s.windows.filter(w => w && hasApp(w.id)) };
+  } catch { return null; }
+}
 
 export function System({ children }: { children: React.ReactNode }) {
   /* the kernel log plays once per tab; coming back lands on the lock screen */
   const [phase, setPhase] = useState<Phase>(() => {
     try { return sessionStorage.getItem(SEEN_BOOT) ? "lock" : "boot"; } catch { return "boot"; }
   });
-  const [windows, setWindows] = useState<WinState[]>([]);
-  const [theme, setTheme] = useState<ThemeId>("sunrise");
+  const restored = useRef<Session | null>(readSession());
+  const [windows, setWindows] = useState<WinState[]>(() => restored.current?.windows ?? []);
+  const [theme, setTheme] = useState<ThemeId>(() => restored.current?.theme ?? "sunrise");
+  const [spotlight, setSpotlight] = useState(false);
   const zRef = useRef(1);
 
   const focus = useCallback((id: AppId) => {
@@ -133,10 +163,28 @@ export function System({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const close     = useCallback((id: AppId) => setWindows(ws => ws.filter(w => w.id !== id)), []);
+  /* The close fades through CSS and the node is dropped on a timer. Framer's
+     exit animations never complete anywhere in this app, which used to leave
+     every closed window sitting on the desk at full opacity. */
+  const close = useCallback((id: AppId) => {
+    setWindows(ws => ws.map(w => (w.id === id ? { ...w, closing: true } : w)));
+    setTimeout(() => setWindows(ws => ws.filter(w => w.id !== id)), 190);
+  }, []);
   const minimise  = useCallback((id: AppId) => setWindows(ws => ws.map(w => (w.id === id ? { ...w, minimised: true } : w))), []);
   const move      = useCallback((id: AppId, x: number, y: number) =>
     setWindows(ws => ws.map(w => (w.id === id ? { ...w, x, y } : w))), []);
+
+  /* a resize cancels "zoomed": the window is no longer the size zoom gave it,
+     so restoring the pre-zoom geometry afterwards would be a surprise */
+  const resize = useCallback((id: AppId, w: number, h: number) =>
+    setWindows(ws => ws.map(win => (win.id === id
+      ? { ...win, w: Math.max(MIN_W, w), h: Math.max(MIN_H, h), zoomed: false, prev: undefined }
+      : win))), []);
+
+  const resetDesktop = useCallback(() => {
+    setWindows([]);
+    try { localStorage.removeItem(SESSION); } catch { /* private mode */ }
+  }, []);
 
   const zoom = useCallback((id: AppId) => {
     setWindows(ws => ws.map(w => {
@@ -152,13 +200,62 @@ export function System({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const isOpen = useCallback((id: AppId) => windows.some(w => w.id === id && !w.minimised), [windows]);
+  const isOpen = useCallback((id: AppId) => windows.some(w => w.id === id && !w.minimised && !w.closing), [windows]);
 
   const topId = useMemo(() => {
-    const live = windows.filter(w => !w.minimised);
+    const live = windows.filter(w => !w.minimised && !w.closing);
     if (!live.length) return null;
     return live.reduce((a, b) => (a.z > b.z ? a : b)).id;
   }, [windows]);
+
+  /* the live desk, readable from event listeners without rebinding them */
+  const winRef = useRef<WinState[]>(windows);
+  useEffect(() => { winRef.current = windows; }, [windows]);
+
+  /* Carry the restored stacking order forward, so the first click after a
+     reload doesn't send a window behind the ones it was already in front of. */
+  useEffect(() => {
+    zRef.current = (restored.current?.windows ?? []).reduce((m, w) => Math.max(m, w.z), 1);
+  }, []);
+
+  /* write the desk back on every change; a full desktop is a few hundred bytes */
+  useEffect(() => {
+    const keep = windows.filter(w => !w.closing);
+    try { localStorage.setItem(SESSION, JSON.stringify({ windows: keep, theme })); }
+    catch { /* private mode, or quota — the desk just won't persist */ }
+  }, [windows, theme]);
+
+  /* ── keyboard ──────────────────────────────
+     ⌘K / ctrl-K opens search, ⌘W closes the focused window, ⌘M minimises it.
+     Nothing fires while a text field has focus, so the terminal and the
+     project search keep every key to themselves. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement;
+      const typing = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement;
+      const mod = e.metaKey || e.ctrlKey;
+
+      if (mod && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSpotlight(v => !v);
+        return;
+      }
+      if (typing || !mod) return;
+
+      const key = e.key.toLowerCase();
+      if (key !== "w" && key !== "m") return;
+
+      /* read the desk from a ref so the listener never has to be rebound, and
+         go through close/minimise so the shortcut behaves like the buttons */
+      const live = winRef.current.filter(w => !w.minimised && !w.closing);
+      if (!live.length) return;
+      e.preventDefault();
+      const top = live.reduce((a, b) => (a.z > b.z ? a : b));
+      if (key === "w") close(top.id); else minimise(top.id);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [close, minimise]);
 
   /* keep windows on screen when the viewport shrinks */
   useEffect(() => {
@@ -179,8 +276,9 @@ export function System({ children }: { children: React.ReactNode }) {
     },
     booted: phase === "desktop",
     boot: () => setPhase("desktop"),
-    windows, open, close, focus, minimise, zoom, move, isOpen, topId,
+    windows, open, close, focus, minimise, zoom, move, resize, isOpen, topId,
     theme, setTheme,
+    spotlight, setSpotlight, resetDesktop,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

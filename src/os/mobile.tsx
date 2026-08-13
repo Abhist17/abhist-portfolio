@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ME, SOCIALS, THEMES } from "./data";
 import { AppIcon } from "./icons";
 import { SocialMark } from "./socials";
@@ -15,7 +15,14 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function Springboard() {
   const { theme, setTheme } = useSystem();
   const [app, setApp] = useState<AppId | null>(null);
+  const [closing, setClosing] = useState(false);
   const now = useClock();
+
+  /* let the sheet slide back down, then drop it */
+  const closeSheet = () => {
+    setClosing(true);
+    setTimeout(() => { setApp(null); setClosing(false); }, 400);
+  };
 
   return (
     <div className="phone">
@@ -80,19 +87,21 @@ export function Springboard() {
 
       <p className="phone-foot">{fmtDate(now)} · Made with ❤️ in Room 524</p>
 
-      <AnimatePresence>
-        {app && <Sheet id={app} onClose={() => setApp(null)} />}
-      </AnimatePresence>
+      {/* Not an AnimatePresence: its exit never completes in this app, and a
+          sheet that fails to unmount covers the whole phone for good. The
+          slide-out runs through `animate`, which does work, and the unmount
+          is a timer. */}
+      {app && <Sheet id={app} closing={closing} onClose={closeSheet} />}
     </div>
   );
 }
 
 /* Full-screen app sheet, the phone equivalent of a window. */
-function Sheet({ id, onClose }: { id: AppId; onClose: () => void }) {
+function Sheet({ id, closing, onClose }: { id: AppId; closing: boolean; onClose: () => void }) {
   const meta = appMeta(id);
   return (
     <motion.div className="sheet"
-      initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+      initial={{ y: "100%" }} animate={{ y: closing ? "100%" : 0 }}
       transition={{ duration: 0.42, ease: EASE }}
       drag="y"
       dragConstraints={{ top: 0, bottom: 0 }}

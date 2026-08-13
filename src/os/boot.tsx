@@ -29,12 +29,16 @@ const LINES: Line[] = [
 export function BootScreen() {
   const { setPhase } = useSystem();
   const [shown, setShown] = useState(0);
+  const [leaving, setLeaving] = useState(false);
   const done = useRef(false);
 
+  /* fade through CSS, hand over on a timer — see LockScreen for why the
+     handover does not hang off an animation callback */
   const finish = () => {
     if (done.current) return;
     done.current = true;
-    setPhase("lock");
+    setLeaving(true);
+    setTimeout(() => setPhase("lock"), 320);
   };
 
   useEffect(() => {
@@ -60,10 +64,7 @@ export function BootScreen() {
   }, []);
 
   return (
-    <motion.div
-      className="boot"
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.35 }}>
+    <div className={`boot ${leaving ? "is-leaving" : ""}`}>
       <div className="boot-log">
         {LINES.slice(0, shown).map((l, i) => (
           <p className="boot-line" key={i}>
@@ -76,6 +77,6 @@ export function BootScreen() {
         {shown < LINES.length && <span className="boot-caret" />}
       </div>
       <p className="boot-skip">Press any key to skip</p>
-    </motion.div>
+    </div>
   );
 }
