@@ -11,7 +11,10 @@ export const CONFIG = {
      Codeforces works straight from the browser.
      LeetCode and CodeChef have no public CORS
      API, so those two show as links until we
-     add a tiny proxy — paste the handles anyway. */
+     add a tiny proxy — paste the handles anyway.
+     Codeforces fills the live rating widget; the
+     other two render as profile links. Empty =
+     that platform is simply not shown. */
   codeforces: "",          // e.g. "abhist17"
   leetcode:   "",          // e.g. "abhist17"
   codechef:   "",          // e.g. "abhist17"
@@ -19,7 +22,7 @@ export const CONFIG = {
   /* ── résumé ───────────────────────────────
      Drop the file at public/resume.pdf and put
      "/resume.pdf" here. Empty = no Résumé app. */
-  resume: "",
+  resume: "/resume.pdf",
 
   /* ── music ────────────────────────────────
      Paste a YouTube / YouTube Music link:

@@ -6,7 +6,7 @@ import { SHOTS } from "./gallery";
 import { ToolIcon, findTool } from "./tech";
 import { LANG_COLOR, timeAgo, useRepos, type Repo } from "./live";
 import { CONFIG } from "./config";
-import type { AppId } from "./system";
+import { hasApp, type AppId } from "./system";
 
 /* Every app opens with its own title, the way a real app does. */
 function AppHead({ title, sub }: { title: string; sub: string }) {
@@ -443,6 +443,34 @@ function PhotoApp() {
 }
 
 /* ═════════════════════════════════════════════
+   RÉSUMÉ — the actual PDF, in a window
+═════════════════════════════════════════════ */
+function ResumeApp() {
+  const src = CONFIG.resume;
+  const file = `${ME.name.replace(/\s+/g, "-")}-Resume.pdf`;
+
+  return (
+    <div className="pdf">
+      <div className="pdf-bar">
+        <p className="muted">{ME.name} · {ME.role}</p>
+        <div className="pdf-acts">
+          <a className="btn btn-ghost" href={src} target="_blank" rel="noreferrer">Open in tab</a>
+          <a className="btn" href={src} download={file}>Download</a>
+        </div>
+      </div>
+      {/* Some mobile browsers refuse to inline a PDF at all — the two buttons
+          above stay reachable either way, so a blank frame is never a dead end. */}
+      <object className="pdf-frame" data={`${src}#view=FitH`} type="application/pdf">
+        <div className="pdf-fallback">
+          <p>Your browser won't display the PDF inline.</p>
+          <a className="btn" href={src} download={file}>Download the résumé</a>
+        </div>
+      </object>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════
    TERMINAL — a real little shell
 ═════════════════════════════════════════════ */
 type Line = { kind: "in" | "out" | "err"; text: string };
@@ -452,7 +480,10 @@ const BANNER: Line[] = [
   { kind: "out", text: `Type "help" for the command list.` },
 ];
 
-const FILES = ["about.txt", "projects/", "background/", "skills.txt", "contact.txt", "photos/"];
+const FILES = [
+  "about.txt", "projects/", "background/", "skills.txt", "contact.txt", "photos/",
+  ...(CONFIG.resume ? ["resume.pdf"] : []),
+];
 
 function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
   const [cmd, ...args] = raw.trim().split(/\s+/);
@@ -472,6 +503,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
         { kind: "out", text: "background    roles and education" },
         { kind: "out", text: "skills        the stack" },
         { kind: "out", text: "contact       how to reach me" },
+        ...(CONFIG.resume ? [{ kind: "out" as const, text: "resume        open the résumé" }] : []),
         { kind: "out", text: "open <app>    open an app window" },
         { kind: "out", text: "neofetch      system info" },
         { kind: "out", text: "clear         clear the screen" },
@@ -495,6 +527,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       if (f === "projects")    return PROJECTS.map(p => ({ kind: "out" as const, text: `${p.n}  ${p.title}` }));
       if (f === "background")  return EXP.map(e => ({ kind: "out" as const, text: `${e.period.padEnd(11)} ${e.org} — ${e.role}` }));
       if (f === "photos")      return SHOTS.map((s, i) => ({ kind: "out" as const, text: `${String(i + 1).padStart(2, "0")}  ${s.caption}` }));
+      if (f === "resume.pdf" && CONFIG.resume) return [{ kind: "out", text: `%PDF — binary. try "resume" to open it.` }];
       return [{ kind: "err", text: `cat: ${arg}: No such file or directory` }];
     }
 
@@ -513,8 +546,14 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
     case "contact":
       return SOCIALS.map(s => ({ kind: "out" as const, text: `${s.label.padEnd(10)} ${s.href}` }));
 
+    case "resume":
+      if (!CONFIG.resume) return [{ kind: "err", text: "resume: no résumé configured" }];
+      open("resume");
+      return [{ kind: "out", text: "opening resume.pdf…" }];
+
     case "open": {
-      const valid: AppId[] = ["about", "projects", "background", "stack", "contact", "terminal", "photo", "merge"];
+      const valid = (["about", "projects", "background", "stack", "contact", "terminal", "photo", "merge", "resume"] as AppId[])
+        .filter(hasApp);
       const target = arg as AppId;
       if (valid.includes(target)) { open(target); return [{ kind: "out", text: `opening ${target}…` }]; }
       return [{ kind: "err", text: `open: unknown app "${arg}". try: ${valid.join(", ")}` }];
@@ -625,6 +664,7 @@ export function AppBody({ id, open }: { id: AppId; open: (a: AppId) => void }) {
     case "stack":      return <StackApp />;
     case "contact":    return <ContactApp />;
     case "photo":      return <PhotoApp />;
+    case "resume":     return <ResumeApp />;
     case "terminal":   return <TerminalApp open={open} />;
     default:           return null;
   }

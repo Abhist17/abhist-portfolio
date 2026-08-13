@@ -81,6 +81,31 @@ export function DocIcon({ size = 64 }: P) {
   );
 }
 
+export function PdfIcon({ size = 64 }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <defs>
+        <linearGradient id="p-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" /><stop offset="1" stopColor="#ece8df" />
+        </linearGradient>
+      </defs>
+      <Shadow />
+      <path d="M14 6h22.5L52 21.5V56a2.5 2.5 0 0 1-2.5 2.5h-35A2.5 2.5 0 0 1 12 56V8.5A2.5 2.5 0 0 1 14.5 6z"
+        fill="url(#p-body)" stroke="#cfcabd" strokeWidth="1" />
+      <path d="M36.5 6L52 21.5H39a2.5 2.5 0 0 1-2.5-2.5z" fill="#d3cec2" />
+      <path d="M36.5 6L52 21.5h-2.4L36.5 8.4z" fill="#bdb8ab" />
+      {/* the ruled body peeking out above the badge */}
+      <g stroke="#b4b0a3" strokeWidth="1.6" strokeLinecap="round">
+        <path d="M20 29h24M20 35h18" />
+      </g>
+      {/* PDF badge */}
+      <rect x="12" y="40" width="30" height="14" rx="3" fill="#c4462f" />
+      <text x="27" y="50.2" textAnchor="middle" fill="#fff"
+        fontSize="9" fontWeight="700" fontFamily="Helvetica, Arial, sans-serif" letterSpacing="0.5">PDF</text>
+    </svg>
+  );
+}
+
 export function TerminalIcon({ size = 64 }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
@@ -197,6 +222,7 @@ export function AppIcon({ kind, size = 64, src }: { kind: string; size?: number;
     case "folder":   return <FolderIcon size={size} />;
     case "folder-alt": return <FolderAltIcon size={size} />;
     case "doc":      return <DocIcon size={size} />;
+    case "pdf":      return <PdfIcon size={size} />;
     case "terminal": return <TerminalIcon size={size} />;
     case "mail":     return <MailIcon size={size} />;
     case "grid":     return <GridIcon size={size} />;

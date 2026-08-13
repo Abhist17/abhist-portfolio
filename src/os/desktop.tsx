@@ -173,6 +173,12 @@ export function Intro() {
 /* ═════════════════════════════════════════════
    WIDGETS
 ═════════════════════════════════════════════ */
+/* the platforms that can only be linked, not queried */
+const CP_LINKS = [
+  { label: "LeetCode", handle: CONFIG.leetcode, href: `https://leetcode.com/u/${CONFIG.leetcode}/` },
+  { label: "CodeChef", handle: CONFIG.codechef, href: `https://www.codechef.com/users/${CONFIG.codechef}` },
+].filter(l => !!l.handle);
+
 export function Widgets() {
   const { theme, setTheme, open } = useSystem();
   const gh   = useGitHub();
@@ -247,6 +253,22 @@ export function Widgets() {
           <p className="w-big">{cf.data.rating ?? "—"}</p>
           <p className="w-sub">{cf.data.rank ?? "unrated"}{cf.data.maxRating ? ` · peak ${cf.data.maxRating}` : ""}</p>
         </a>
+      )}
+
+      {/* LeetCode and CodeChef have no CORS-open API, so these stay honest
+          links rather than pretending to live numbers. */}
+      {CP_LINKS.length > 0 && (
+        <div className="w-card">
+          <p className="w-kicker">Also solving on</p>
+          <div className="w-links">
+            {CP_LINKS.map(l => (
+              <a key={l.label} href={l.href} target="_blank" rel="noreferrer">
+                <span>{l.label}</span>
+                <span className="w-handle">{l.handle}</span>
+              </a>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="w-card">
