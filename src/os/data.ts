@@ -62,7 +62,7 @@ export const SOCIALS: Social[] = [
   { id:"telegram",  label:"Telegram",  handle:"@abhistcodes",            href:"https://t.me/abhistcodes",                        note:"Fastest reply. DMs open." },
   { id:"github",    label:"GitHub",    handle:"Abhist17",                href:"https://github.com/Abhist17",                     note:"Contracts, tools, everything public." },
   { id:"instagram", label:"Instagram", handle:"@oyeabhist",              href:"https://instagram.com/oyeabhist",                 note:"The off-chain life." },
-  { id:"linkedin",  label:"LinkedIn",  handle:"abhist-k",                href:"https://www.linkedin.com/in/abhist-k-845079323/", note:"Résumé stuff and formal intros." },
+  { id:"linkedin",  label:"LinkedIn",  handle:"abhist-k",                href:"https://www.linkedin.com/in/abhist-k-845079323/", note:"Resume stuff and formal intros." },
 ];
 
 export const social = (id: SocialId) => SOCIALS.find(s => s.id === id && s.href) ?? null;

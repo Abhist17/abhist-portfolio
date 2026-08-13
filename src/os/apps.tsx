@@ -463,7 +463,7 @@ function ResumeApp() {
       <object className="pdf-frame" data={`${src}#view=FitH`} type="application/pdf">
         <div className="pdf-fallback">
           <p>Your browser won't display the PDF inline.</p>
-          <a className="btn" href={src} download={file}>Download the résumé</a>
+          <a className="btn" href={src} download={file}>Download the resume</a>
         </div>
       </object>
     </div>
@@ -503,7 +503,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
         { kind: "out", text: "background    roles and education" },
         { kind: "out", text: "skills        the stack" },
         { kind: "out", text: "contact       how to reach me" },
-        ...(CONFIG.resume ? [{ kind: "out" as const, text: "resume        open the résumé" }] : []),
+        ...(CONFIG.resume ? [{ kind: "out" as const, text: "resume        open the resume" }] : []),
         { kind: "out", text: "open <app>    open an app window" },
         { kind: "out", text: "neofetch      system info" },
         { kind: "out", text: "clear         clear the screen" },
@@ -547,7 +547,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       return SOCIALS.map(s => ({ kind: "out" as const, text: `${s.label.padEnd(10)} ${s.href}` }));
 
     case "resume":
-      if (!CONFIG.resume) return [{ kind: "err", text: "resume: no résumé configured" }];
+      if (!CONFIG.resume) return [{ kind: "err", text: "resume: no resume configured" }];
       open("resume");
       return [{ kind: "out", text: "opening resume.pdf…" }];
 

@@ -38,12 +38,12 @@ export type AppMeta = {
   inDock: boolean;
 };
 
-/* Résumé sits out of the list entirely when no file is configured, so an
+/* Resume sits out of the list entirely when no file is configured, so an
    unset CONFIG.resume costs a dead icon rather than a broken window. */
 export const APPS: AppMeta[] = ([
   { id: "projects",   name: "Projects",   kind: "folder",   w: 760, h: 520, slot: 0, onDesktop: true,  inDock: true  },
   { id: "about",      name: "About Me",   kind: "doc",      w: 620, h: 480, slot: 1, onDesktop: true,  inDock: true  },
-  { id: "resume",     name: "Résumé",     kind: "pdf",      w: 720, h: 720, slot: 2, onDesktop: true,  inDock: true  },
+  { id: "resume",     name: "Resume",     kind: "pdf",      w: 720, h: 720, slot: 2, onDesktop: true,  inDock: true  },
   { id: "background", name: "Background", kind: "folder-alt", w: 720, h: 460, slot: 3, onDesktop: true,  inDock: true  },
   { id: "terminal",   name: "Terminal",   kind: "terminal", w: 680, h: 440, slot: 4, onDesktop: true,  inDock: true  },
   { id: "stack",      name: "Tech Stack", kind: "grid",     w: 660, h: 580, slot: 5, onDesktop: false, inDock: true  },

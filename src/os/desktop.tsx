@@ -9,7 +9,7 @@ import { CONFIG } from "./config";
 import { useCodeforces, useGitHub, useGitHubActivity, useWeather, weatherText } from "./live";
 import { NowPlaying } from "./music";
 import {
-  APPS, appMeta, fmtDate, fmtTime, useClock, useSystem, type AppId, type WinState,
+  APPS, appMeta, fmtDate, fmtTime, hasApp, useClock, useSystem, type AppId, type WinState,
 } from "./system";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -61,7 +61,7 @@ const MENUS: { label: string; items: { label: string; app?: AppId; href?: string
   { label: "File", items: [
     { label: "Open Projects", app: "projects" },
     { label: "Open Terminal", app: "terminal" },
-    { label: "Open Résumé…", href: "https://github.com/Abhist17" },
+    { label: "Open Resume", app: "resume" },
   ]},
   { label: "Go", items: [
     { label: "About Me", app: "about" },
@@ -98,7 +98,7 @@ export function MenuBar() {
                 <motion.div className="dropdown"
                   initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.16 }}>
-                  {m.items.map(it => it.app ? (
+                  {m.items.filter(it => !it.app || hasApp(it.app)).map(it => it.app ? (
                     <button key={it.label} onClick={() => { open(it.app!); setMenu(null); }}>{it.label}</button>
                   ) : (
                     <a key={it.label} href={it.href} target="_blank" rel="noreferrer" onClick={() => setMenu(null)}>{it.label}</a>

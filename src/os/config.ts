@@ -19,9 +19,9 @@ export const CONFIG = {
   leetcode:   "",          // e.g. "abhist17"
   codechef:   "",          // e.g. "abhist17"
 
-  /* ── résumé ───────────────────────────────
+  /* ── resume ───────────────────────────────
      Drop the file at public/resume.pdf and put
-     "/resume.pdf" here. Empty = no Résumé app. */
+     "/resume.pdf" here. Empty = no Resume app. */
   resume: "/resume.pdf",
 
   /* ── music ────────────────────────────────

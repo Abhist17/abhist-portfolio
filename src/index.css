@@ -558,7 +558,7 @@
 .w-links a:hover { color: var(--accent); }
 .w-handle { font-size: 11px; color: var(--ink-mute); font-family: var(--mono); }
 
-/* résumé — the PDF fills the window under a thin action bar */
+/* resume — the PDF fills the window under a thin action bar */
 .pdf { display: flex; flex-direction: column; height: 100%; }
 .pdf-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
