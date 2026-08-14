@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lazy, Suspense } from "react";
-import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS } from "./data";
+import { ABOUT, EXP, ME, PROJECTS, SKILLS, SOCIALS, STATS, WRITING } from "./data";
 import { SocialMark, tintOf } from "./socials";
 import { SHOTS } from "./gallery";
 import { ToolIcon, findTool } from "./tech";
-import { LANG_COLOR, timeAgo, useRepos, type Repo } from "./live";
+import { LANG_COLOR, mergePosts, timeAgo, useMedium, useRepos, type Repo } from "./live";
 import { CONFIG } from "./config";
 import { hasApp, type AppId } from "./system";
 
@@ -443,29 +443,138 @@ function PhotoApp() {
 }
 
 /* ═════════════════════════════════════════════
+   WRITING — the Medium shelf
+
+   The list is the hand-written WRITING set with
+   the live feed laid over it, so a new post shows
+   up here on its own once Medium has it — and an
+   rss2json outage costs the newest few, never the
+   shelf. See mergePosts in live.ts.
+═════════════════════════════════════════════ */
+function WritingApp() {
+  const feed = useMedium();
+  const posts = useMemo(() => mergePosts(feed.data), [feed.data]);
+
+  /* every distinct tag across the shelf, most-used first */
+  const tags = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const p of posts) for (const t of p.tags) n.set(t, (n.get(t) ?? 0) + 1);
+    return [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t);
+  }, [posts]);
+
+  const [tag, setTag] = useState<string | null>(null);
+  const list = tag ? posts.filter(p => p.tags.includes(tag)) : posts;
+
+  /* Only the count is live-dependent, so the subtitle says where the list came
+     from rather than claiming a number it may be about to revise. */
+  const sub = feed.loading && !posts.length
+    ? "loading from medium…"
+    : `${posts.length} ${posts.length === 1 ? "piece" : "pieces"}${
+        feed.failed ? " · offline copy" : CONFIG.medium ? " · live from medium" : ""}`;
+
+  return (
+    <div className="app">
+      <AppHead title="Writing" sub={sub} />
+
+      {tags.length > 1 && (
+        <div className="write-tags" role="group" aria-label="Filter by tag">
+          <button className={`chip-toggle ${tag === null ? "on" : ""}`} onClick={() => setTag(null)}>
+            All
+          </button>
+          {tags.map(t => (
+            <button key={t} className={`chip-toggle ${tag === t ? "on" : ""}`}
+              onClick={() => setTag(v => (v === t ? null : t))}>
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="write-list">
+        {list.map(p => (
+          <a className="write-row" key={p.link} href={p.link} target="_blank" rel="noreferrer">
+            <span className="write-meta">
+              <span className="write-date">{longDate(p.date)}</span>
+              <span className="write-read">{p.read} min read</span>
+            </span>
+            <span className="write-main">
+              <strong className="write-title">{p.title}</strong>
+              <span className="write-deck">{p.deck}</span>
+              {p.tags.length > 0 && (
+                <span className="write-tagline">
+                  {p.tags.slice(0, 4).map(t => <span className="write-tag" key={t}>{t}</span>)}
+                </span>
+              )}
+            </span>
+            <svg className="write-go" width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+              <path d="M2 10L10 2M10 2H3.5M10 2V8.5" stroke="currentColor" strokeWidth="1.3" />
+            </svg>
+          </a>
+        ))}
+
+        {!list.length && (
+          <p className="repo-empty">
+            {feed.loading ? "Loading…" : "Nothing filed under that tag yet."}
+          </p>
+        )}
+      </div>
+
+      {CONFIG.medium && (
+        <p className="hint write-foot">
+          <a href={`https://medium.com/@${CONFIG.medium}`} target="_blank" rel="noreferrer">
+            Everything on Medium →
+          </a>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* "13 August 2026" — the date on a piece of writing is worth reading in full,
+   unlike the relative stamps on the repo rows. */
+function longDate(iso: string) {
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+}
+
+/* ═════════════════════════════════════════════
    RÉSUMÉ — the actual PDF, in a window
 ═════════════════════════════════════════════ */
 function ResumeApp() {
   const src = CONFIG.resume;
   const file = `${ME.name.replace(/\s+/g, "-")}-Resume.pdf`;
 
+  /* Preview's arrangement: the sheet floats on a neutral stage with a shadow
+     under it, and the controls hover over the page rather than sitting in a
+     bar above it. The window's own title already says "Resume", so the name
+     line that used to head this app was saying it twice. */
   return (
     <div className="pdf">
-      <div className="pdf-bar">
-        <p className="muted">{ME.name} · {ME.role}</p>
-        <div className="pdf-acts">
-          <a className="btn btn-ghost" href={src} target="_blank" rel="noreferrer">Open in tab</a>
-          <a className="btn" href={src} download={file}>Download</a>
+      <div className="pdf-stage">
+        <div className="pdf-page">
+          {/* `toolbar=0` drops the viewer's own grey chrome, which is the one
+              thing standing between this and looking like a document; FitH
+              matches the page width to the sheet so the margins are ours. */}
+          <object
+            className="pdf-frame"
+            data={`${src}#toolbar=0&navpanes=0&statusbar=0&view=FitH`}
+            type="application/pdf">
+            {/* Some mobile browsers refuse to inline a PDF at all — the
+                controls below stay reachable either way, so a blank frame is
+                never a dead end. */}
+            <div className="pdf-fallback">
+              <p>Your browser won't display the PDF inline.</p>
+              <a className="btn" href={src} download={file}>Download the resume</a>
+            </div>
+          </object>
         </div>
       </div>
-      {/* Some mobile browsers refuse to inline a PDF at all — the two buttons
-          above stay reachable either way, so a blank frame is never a dead end. */}
-      <object className="pdf-frame" data={`${src}#view=FitH`} type="application/pdf">
-        <div className="pdf-fallback">
-          <p>Your browser won't display the PDF inline.</p>
-          <a className="btn" href={src} download={file}>Download the resume</a>
-        </div>
-      </object>
+
+      <div className="pdf-acts">
+        <a className="btn btn-ghost" href={src} target="_blank" rel="noreferrer">Open in tab</a>
+        <a className="btn" href={src} download={file}>Download</a>
+      </div>
     </div>
   );
 }
@@ -482,8 +591,17 @@ const BANNER: Line[] = [
 
 const FILES = [
   "about.txt", "projects/", "background/", "skills.txt", "contact.txt", "photos/",
+  ...(hasApp("writing") ? ["writing/"] : []),
   ...(CONFIG.resume ? ["resume.pdf"] : []),
 ];
+
+/* The shell reads the written-down shelf rather than the merged one: it has no
+   hook to pull the feed from, and a command that silently returned less than
+   the Writing window would be worse than one that is plainly the offline copy. */
+const writingLines = () => WRITING.map(p => ({
+  kind: "out" as const,
+  text: `${p.date}  ${p.title}`,
+}));
 
 function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
   const [cmd, ...args] = raw.trim().split(/\s+/);
@@ -501,6 +619,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
         { kind: "out", text: "cat <file>    read a file" },
         { kind: "out", text: "projects      list the repos" },
         { kind: "out", text: "background    roles and education" },
+        ...(hasApp("writing") ? [{ kind: "out" as const, text: "writing       things I've written" }] : []),
         { kind: "out", text: "skills        the stack" },
         { kind: "out", text: "contact       how to reach me" },
         ...(CONFIG.resume ? [{ kind: "out" as const, text: "resume        open the resume" }] : []),
@@ -527,6 +646,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       if (f === "projects")    return PROJECTS.map(p => ({ kind: "out" as const, text: `${p.n}  ${p.title}` }));
       if (f === "background")  return EXP.map(e => ({ kind: "out" as const, text: `${e.period.padEnd(11)} ${e.org} — ${e.role}` }));
       if (f === "photos")      return SHOTS.map((s, i) => ({ kind: "out" as const, text: `${String(i + 1).padStart(2, "0")}  ${s.caption}` }));
+      if (f === "writing" && hasApp("writing")) return writingLines();
       if (f === "resume.pdf" && CONFIG.resume) return [{ kind: "out", text: `%PDF — binary. try "resume" to open it.` }];
       return [{ kind: "err", text: `cat: ${arg}: No such file or directory` }];
     }
@@ -540,6 +660,15 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
     case "background":
       return EXP.map(e => ({ kind: "out" as const, text: `${e.period.padEnd(11)} ${e.org} — ${e.role}` }));
 
+    case "writing":
+      if (!hasApp("writing")) return [{ kind: "err", text: "writing: nothing published yet" }];
+      /* each piece over two lines, title then link, so a long URL never pushes
+         the title off the edge of a narrow terminal */
+      return WRITING.flatMap(p => [
+        { kind: "out" as const, text: `${p.date}  ${p.title}  (${p.read} min)` },
+        { kind: "out" as const, text: `            ${p.link}` },
+      ]);
+
     case "skills":
       return Object.entries(SKILLS).map(([c, i]) => ({ kind: "out" as const, text: `${c.padEnd(12)} ${i.join(", ")}` }));
 
@@ -552,7 +681,7 @@ function runCommand(raw: string, open: (id: AppId) => void): Line[] | "clear" {
       return [{ kind: "out", text: "opening resume.pdf…" }];
 
     case "open": {
-      const valid = (["about", "projects", "background", "stack", "contact", "terminal", "photo", "merge", "resume"] as AppId[])
+      const valid = (["about", "projects", "background", "stack", "contact", "terminal", "photo", "merge", "resume", "writing"] as AppId[])
         .filter(hasApp);
       const target = arg as AppId;
       if (valid.includes(target)) { open(target); return [{ kind: "out", text: `opening ${target}…` }]; }
@@ -659,6 +788,7 @@ export function AppBody({ id, open }: { id: AppId; open: (a: AppId) => void }) {
       </Suspense>
     );
     case "about":      return <AboutApp />;
+    case "writing":    return <WritingApp />;
     case "projects":   return <ProjectsApp />;
     case "background": return <BackgroundApp />;
     case "stack":      return <StackApp />;

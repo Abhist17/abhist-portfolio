@@ -55,6 +55,23 @@ export const CONFIG = {
   github: "Abhist17",
   minStars: 1,
 
+  /* ── medium ───────────────────────────────
+     Just the handle, no @. Medium's RSS feed
+     sends no CORS header, so the Writing app
+     reads it through rss2json — a free, keyless
+     relay that answers with the right header.
+
+     That relay is the only fragile part of this
+     app, so every post is also written down in
+     WRITING (data.ts). Those always render; the
+     feed only ever adds newer posts on top. Put
+     a post in both places and the feed copy wins.
+
+     Empty = the app shows WRITING alone and
+     never calls out. The app only disappears
+     when both are empty. */
+  medium: "abhistcodes17",
+
   /* ── weather ──────────────────────────────
      Open-Meteo, no key needed. Nagpur. */
   place: { name: "Nagpur", lat: 21.1458, lon: 79.0882 },

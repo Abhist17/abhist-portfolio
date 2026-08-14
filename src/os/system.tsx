@@ -1,7 +1,7 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from "react";
-import type { ThemeId } from "./data";
+import { WRITING, type ThemeId } from "./data";
 import { CONFIG } from "./config";
 
 /* ═════════════════════════════════════════════
@@ -12,7 +12,7 @@ import { CONFIG } from "./config";
 
 export type AppId =
   | "about" | "projects" | "background" | "stack" | "contact" | "terminal" | "photo" | "merge"
-  | "resume";
+  | "resume" | "writing";
 
 export type WinState = {
   id: AppId;
@@ -32,7 +32,8 @@ export type AppMeta = {
   id: AppId;
   name: string;
   /* what the icon looks like on the desktop */
-  kind: "folder" | "folder-alt" | "doc" | "terminal" | "mail" | "grid" | "photo" | "merge" | "pdf";
+  kind: "folder" | "folder-alt" | "doc" | "terminal" | "mail" | "grid" | "photo" | "merge" | "pdf"
+      | "writing";
   w: number;
   h: number;
   /* desktop icon slot */
@@ -41,19 +42,26 @@ export type AppMeta = {
   inDock: boolean;
 };
 
-/* Resume sits out of the list entirely when no file is configured, so an
-   unset CONFIG.resume costs a dead icon rather than a broken window. */
+/* Resume sits out of the list entirely when no file is configured, and Writing
+   when there is nothing to read — an unset CONFIG.resume or an empty shelf
+   costs a dead icon rather than a broken window. */
 export const APPS: AppMeta[] = ([
   { id: "projects",   name: "Projects",   kind: "folder",   w: 760, h: 520, slot: 0, onDesktop: true,  inDock: true  },
   { id: "about",      name: "About Me",   kind: "doc",      w: 620, h: 480, slot: 1, onDesktop: true,  inDock: true  },
-  { id: "resume",     name: "Resume",     kind: "pdf",      w: 720, h: 720, slot: 2, onDesktop: true,  inDock: true  },
-  { id: "background", name: "Background", kind: "folder-alt", w: 720, h: 460, slot: 3, onDesktop: true,  inDock: true  },
-  { id: "terminal",   name: "Terminal",   kind: "terminal", w: 680, h: 440, slot: 4, onDesktop: true,  inDock: true  },
-  { id: "stack",      name: "Tech Stack", kind: "grid",     w: 660, h: 580, slot: 5, onDesktop: false, inDock: true  },
-  { id: "contact",    name: "Contact",    kind: "mail",     w: 680, h: 620, slot: 6, onDesktop: true,  inDock: true  },
-  { id: "merge",      name: "Merge",      kind: "merge",   w: 520, h: 660, slot: 7, onDesktop: true,  inDock: true  },
-  { id: "photo",      name: "Photos",     kind: "photo",    w: 780, h: 580, slot: 8, onDesktop: true,  inDock: true  },
-] as AppMeta[]).filter(a => a.id !== "resume" || !!CONFIG.resume);
+  { id: "writing",    name: "Writing",    kind: "writing",  w: 720, h: 560, slot: 2, onDesktop: true,  inDock: true  },
+  { id: "resume",     name: "Resume",     kind: "pdf",      w: 720, h: 720, slot: 3, onDesktop: true,  inDock: true  },
+  { id: "background", name: "Background", kind: "folder-alt", w: 720, h: 460, slot: 4, onDesktop: true,  inDock: true  },
+  { id: "terminal",   name: "Terminal",   kind: "terminal", w: 680, h: 440, slot: 5, onDesktop: true,  inDock: true  },
+  { id: "stack",      name: "Tech Stack", kind: "grid",     w: 660, h: 580, slot: 6, onDesktop: false, inDock: true  },
+  { id: "contact",    name: "Contact",    kind: "mail",     w: 680, h: 620, slot: 7, onDesktop: true,  inDock: true  },
+  { id: "merge",      name: "Merge",      kind: "merge",   w: 520, h: 660, slot: 8, onDesktop: true,  inDock: true  },
+  { id: "photo",      name: "Photos",     kind: "photo",    w: 780, h: 580, slot: 9, onDesktop: true,  inDock: true  },
+] as AppMeta[]).filter(a => {
+  if (a.id === "resume")  return !!CONFIG.resume;
+  /* either a feed to pull from or something already written down is enough */
+  if (a.id === "writing") return !!CONFIG.medium || WRITING.length > 0;
+  return true;
+});
 
 export const appMeta = (id: AppId) => APPS.find(a => a.id === id)!;
 export const hasApp = (id: AppId) => APPS.some(a => a.id === id);

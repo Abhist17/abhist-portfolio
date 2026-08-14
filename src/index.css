@@ -43,12 +43,32 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
+    /* a grey flash on every tap is the single loudest tell that a page was
+       built for a mouse; :active states do the feedback instead */
+    -webkit-tap-highlight-color: transparent;
   }
 
-  body.is-phone { overflow: auto; }
+  /* The phone scrolls vertically and never sideways. The horizontal clamp is
+     not cosmetic: the wallpaper's blurred cloud layer is inset -14%, which on
+     a static phone shell would hand the page ~50px of sideways drift and put
+     every centred row visibly off-axis. */
+  /* The desktop pins html/body/#root to the viewport height, which made the
+     *body* the scrolling element on a phone. That costs the two things a
+     phone browser does for you: the URL bar never collapses, and the scroll
+     loses its native momentum. Letting the height grow hands scrolling back to
+     the document. `overflow-y: visible` is deliberate — it lets the
+     overflow-x clamp propagate to the viewport instead of turning the body
+     into a scroll container again. */
+  body.is-phone { overflow-x: hidden; overflow-y: visible; overscroll-behavior-y: none; }
+  html:has(body.is-phone),
+  body.is-phone,
+  body.is-phone #root { height: auto; min-height: 100%; }
 
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
   a { color: inherit; }
+
+  /* no 300ms tap delay, and no double-tap-to-zoom on things meant to be tapped */
+  button, a, input, label, [role="button"] { touch-action: manipulation; }
 
   ::selection { background: rgba(196, 70, 47, 0.25); }
 
@@ -85,22 +105,27 @@
   background-size: cover;
 }
 
-/* The wallpaper proper. The theme decides how it is developed — left warm,
-   pulled to black and white, or washed into a duotone — so one photograph
-   covers every palette. */
+/* The wallpaper proper. The theme decides how it is developed — washed into a
+   duotone or left in black and white — so one photograph covers every palette.
+   The source is already greyscale, which is exactly what the duotone wants;
+   see the note on .os-tint below. */
 .os-photo {
   position: absolute; inset: 0;
   pointer-events: none;
   background-image: url("/photos/wallpaper.jpg");
   background-size: cover;
-  /* the herd sits low in the frame, so bias the crop downward */
-  background-position: 50% 62%;
+  /* The subject is a centred swirl with no horizon, so the crop sits centred
+     too — the downward bias here was for a photograph whose herd sat low in
+     the frame, and on this one it just cuts the top curve off. */
+  background-position: 50% 50%;
   filter: var(--wall-filter, none);
   transition: filter 1.1s cubic-bezier(.22,1,.36,1);
 }
 
-/* The duotone wash. "color" blending keeps the photo's luminance and swaps
-   only its hue, which is why a grayscale base is what feeds it.
+/* The duotone wash. The blend mode and the tint value come from the theme,
+   because which one is right depends on the wallpaper — see the long note over
+   the tints in data.ts. Today it is "screen" over a dark frame: the shadows
+   take the colour and the highlights stay clean.
 
    This has to be a sibling of .os-photo, not a child: `filter` applies to an
    element *after* its descendants have composited, so a tint nested inside
@@ -133,10 +158,54 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
 }
 
+/* The phone shell is the scrolling page itself, so it cannot be the fixed
+   viewport box the desktop uses. Its decorative layers go fixed instead: the
+   wallpaper then stays put while the content scrolls over it — the way a home
+   screen behaves — and, being out of flow against the viewport, none of them
+   can stretch the page sideways or add a phantom half-screen of scroll at the
+   bottom. `dvh` rather than `%` so the shell doesn't jump as mobile browsers
+   grow and shrink their toolbars. */
 .os-phone {
   position: static; inset: auto;
-  min-height: 100%;
+  min-height: 100dvh;
+  overflow: visible;
 }
+.os-phone::before,
+.os-phone::after,
+.os-phone > .os-photo,
+.os-phone > .os-tint,
+.os-phone > .os-scrim { position: fixed; }
+.os-phone::before { inset: -14%; }
+.os-phone::after,
+.os-phone > .os-photo,
+.os-phone > .os-tint,
+.os-phone > .os-scrim { inset: 0; }
+
+/* The springboard runs white text down the full height of the wallpaper, and
+   the desktop scrim only darkens the top and bottom sixth — so the phone needs
+   one that carries all the way down. How much is a question of what the
+   wallpaper is doing: this one is already near-black, so it takes a fraction
+   of what a sunrise needed. Enough to seat the text and to hold the status row
+   and the dock, and no more — past that the artwork stops being visible at
+   all, which rather defeats having one. */
+.os-phone > .os-scrim {
+  /* Pure black, not the desktop's blue-black. The scrim covers the whole
+     phone rather than just its top and bottom, so any colour in it is a colour
+     laid over the entire wallpaper — and a blue-black one quietly cancelled
+     the warm themes, leaving Sunrise and Ember reading as cool grey. Black
+     costs value only, so whatever hue the theme put there survives. */
+  background:
+    linear-gradient(to bottom,
+      rgba(0,0,0,.55) 0%,
+      rgba(0,0,0,.34) 22%,
+      rgba(0,0,0,.32) 64%,
+      rgba(0,0,0,.56) 100%);
+}
+
+/* The blur that paints the clouds is a full-screen 34px pass, and on a phone
+   GPU it is the most expensive thing on the page. Half the radius reads the
+   same at this size and costs a fraction. */
+.os-phone::before { filter: blur(20px) contrast(1.15); }
 
 /* Entrance animations are CSS, not JS-driven: `both` fill mode guarantees
    the element ends in its final state even if frames are throttled,
@@ -700,16 +769,63 @@
 .w-links a:hover { color: var(--accent); }
 .w-handle { font-size: 11px; color: var(--ink-mute); font-family: var(--mono); }
 
-/* resume — the PDF fills the window under a thin action bar */
-.pdf { display: flex; flex-direction: column; height: 100%; }
-.pdf-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 18px; flex-shrink: 0;
-  border-bottom: 1px solid var(--hair);
+/* ── resume ────────────────────────────────
+   A sheet of paper on a desk, the way Preview
+   shows a document: the stage is the desk, the
+   page carries the shadow, and the controls
+   hover over it instead of taking a bar. */
+.pdf { position: relative; display: flex; flex-direction: column; height: 100%; }
+
+.pdf-stage {
+  flex: 1; min-height: 0;
+  display: flex;
+  padding: 20px 22px;
+  /* a touch darker and warmer than the window panel, so the page reads as
+     lying on top of something rather than as part of the chrome */
+  background: #dcdad4;
+  box-shadow: inset 0 1px 3px rgba(20,20,26,.14);
 }
-.pdf-bar .muted { font-size: 12px; }
-.pdf-acts { display: flex; gap: 8px; flex-shrink: 0; }
-.pdf-frame { flex: 1; width: 100%; min-height: 0; border: 0; background: var(--hair); }
+
+.pdf-page {
+  flex: 1; min-height: 0;
+  border-radius: 3px;
+  overflow: hidden;              /* the plugin will not clip to a radius itself */
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(20,20,26,.16),
+    0 14px 34px -10px rgba(20,20,26,.36);
+}
+
+.pdf-frame { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
+/* Preview's floating controls: present but quiet, and fully opaque the moment
+   you go anywhere near them. They sit over the page, so they never cost the
+   document a strip of height. */
+.pdf-acts {
+  position: absolute; right: 20px; bottom: 20px; z-index: 2;
+  display: flex; gap: 7px;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(28,28,32,.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 10px 26px -8px rgba(0,0,0,.5);
+  opacity: .5;
+  transition: opacity .25s ease;
+}
+.pdf:hover .pdf-acts, .pdf-acts:focus-within { opacity: 1; }
+.pdf-acts .btn {
+  padding: 7px 13px; border-radius: 8px;
+  background: rgba(255,255,255,.94); color: var(--ink);
+}
+.pdf-acts .btn:hover { background: #fff; color: var(--accent); }
+.pdf-acts .btn-ghost {
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255,255,255,.28);
+}
+.pdf-acts .btn-ghost:hover { background: rgba(255,255,255,.16); color: #fff; border-color: rgba(255,255,255,.45); }
+
 .pdf-fallback {
   height: 100%; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 14px;
@@ -814,6 +930,53 @@
   width: 46px; height: 46px; border-radius: 11px;
   background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
 }
+
+/* ── writing ───────────────────────────────
+   A shelf, not a feed: the date leads in its own
+   column so the pieces read as a body of work
+   with a chronology, rather than as cards. */
+.write-tags {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  padding: 0 26px 14px; flex-shrink: 0;
+}
+.write-list { overflow: auto; }
+.app > .write-list { flex: 1; min-height: 0; }
+
+.write-row {
+  display: grid; grid-template-columns: 104px minmax(0,1fr) auto;
+  gap: 16px; align-items: start;
+  padding: 16px 26px;
+  text-decoration: none; color: var(--ink-soft);
+  border-top: 1px solid var(--hair);
+  transition: background .18s ease;
+}
+.write-row:first-child { border-top: 0; }
+.write-meta {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 11px; color: var(--ink-mute); padding-top: 2px;
+}
+.write-date { font-weight: 600; letter-spacing: -0.005em; }
+.write-read { font-variant-numeric: tabular-nums; }
+.write-main { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.write-title {
+  font-size: 15.5px; font-weight: 600; color: var(--ink);
+  letter-spacing: -0.015em; line-height: 1.3;
+}
+.write-deck { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+.write-tagline { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+.write-tag {
+  font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; font-weight: 500;
+  background: rgba(20,20,26,.06); color: var(--ink-mute);
+}
+.write-go { color: var(--ink-mute); opacity: 0; transition: opacity .25s ease; margin-top: 4px; }
+.write-row:hover { background: rgba(20,20,26,.035); }
+.write-row:hover .write-title { color: var(--accent); }
+.write-row:hover .write-go { opacity: 1; }
+
+.write-foot { padding: 14px 26px 20px; margin-top: 0; flex-shrink: 0; border-top: 1px solid var(--hair); }
+.write-foot a { text-decoration: none; }
+.write-foot a:hover { color: var(--accent); }
 
 /* ── contact ───────────────────────────────
    Every card borrows its own brand colour
@@ -1007,12 +1170,28 @@
   position: relative;
   aspect-ratio: 1; height: 100%; width: auto;
   max-width: 100%; max-height: 100%;
+  /* see the @supports block below — on a narrow screen the max-width clamp
+     alone leaves the board taller than it is wide */
   padding: 8px; border-radius: 12px;
   background: #cdc5b4;
   outline: none;
   touch-action: none;
 }
 .merge-board:focus-visible { box-shadow: 0 0 0 3px rgba(125,79,216,.4); }
+
+/* A square board, whichever axis runs out first.
+   `aspect-ratio` loses to a `max-width` clamp: the height stays at 100% while
+   the width is cut, and on a phone that handed the game a 328×350 board with
+   every tile stretched to match. Sizing both axes off the smaller of the two
+   container dimensions keeps it square at any shape of screen. */
+@supports (container-type: size) {
+  .merge-wrap { container-type: size; }
+  .merge-board {
+    width: min(100cqw, 100cqh);
+    height: min(100cqw, 100cqh);
+    max-width: none; max-height: none;
+  }
+}
 .merge-cells {
   display: grid; height: 100%; width: 100%;
   grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
@@ -1122,10 +1301,29 @@
 /* ═══════════════════════════════════════════
    PHONE
 ═══════════════════════════════════════════ */
-.phone { min-height: 100%; padding: 0 20px 40px; color: #fff; }
+/* Every edge padding carries its safe-area inset, so the status row clears a
+   notch and the dock clears the home indicator instead of sitting under them. */
+/* The springboard has to own a layer above the wallpaper.
+   The wallpaper layers are positioned and the springboard is not, so by the
+   painting order they land on top of it — and only the parts that happened to
+   carry their own stacking context (an opacity, a running animation) showed
+   through. The status clock, which has neither, was being painted underneath
+   the sky. One `position: relative; z-index: 1` puts the whole screen above
+   it and stops the effect depending on which elements happen to animate. */
+.phone {
+  position: relative; z-index: 1;
+  min-height: 100dvh;
+  padding:
+    0
+    calc(20px + env(safe-area-inset-right))
+    calc(40px + env(safe-area-inset-bottom))
+    calc(20px + env(safe-area-inset-left));
+  color: #fff;
+}
 .phone-status {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 2px 18px; font-size: 12px; font-weight: 500;
+  padding: calc(14px + env(safe-area-inset-top)) 2px 18px;
+  font-size: 12px; font-weight: 500;
 }
 .phone-status-r { display: flex; align-items: center; gap: 7px; opacity: .9; }
 .phone-dot { width: 6px; height: 6px; border-radius: 50%; background: #6ef0a0; }
@@ -1137,22 +1335,51 @@
 .phone-name { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; }
 .phone-role { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .82; margin-top: 3px; }
 .phone-bio { font-size: 13.5px; line-height: 1.65; opacity: .92; margin-bottom: 26px; }
-.phone-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 10px; }
-@media (max-width: 380px) { .phone-grid { grid-template-columns: repeat(3, 1fr); } }
-.phone-app { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+/* The icon art is a fixed 56px, so the columns are sized to the art rather
+   than to free fractions — four equal fractions on a 320px screen squeeze the
+   art until neighbouring labels collide. `auto-fit` drops to three columns on
+   its own, and `justify-content: center` keeps a short last row on the same
+   optical centre as the rows above it. */
+.phone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 76px);
+  justify-content: space-between;
+  gap: 22px 10px;
+}
+.phone-app {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  /* the art is 56px; the padding takes the whole target past 44px comfortably */
+  padding: 4px 2px;
+  transition: transform .22s cubic-bezier(.22,1,.36,1);
+}
+.phone-app:active { transform: scale(.9); }
 .phone-art { line-height: 0; filter: drop-shadow(0 6px 14px rgba(0,0,0,.35)); }
-.phone-label { font-size: 11px; text-align: center; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
-.phone-themes { display: flex; gap: 11px; justify-content: center; margin: 34px 0 22px; }
+.phone-label {
+  font-size: 11px; text-align: center; line-height: 1.25;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+  /* a long name wraps rather than pushing its column wider */
+  max-width: 100%; overflow-wrap: anywhere;
+}
+.phone-themes { display: flex; gap: 6px; justify-content: center; margin: 34px 0 22px; }
+/* the swatch is a 27px dot, but the thing you tap is the 44px box around it */
+.phone-themes .swatch {
+  width: 44px; height: 44px; border-radius: 50%;
+  background-clip: content-box !important;
+  padding: 8px; border: 0;
+  box-shadow: none;
+}
+.phone-themes .swatch.is-on { outline: 2px solid rgba(255,255,255,.9); outline-offset: -7px; }
 .phone-dock {
-  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
-  padding: 11px; border-radius: 20px;
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 4px;
+  padding: 7px; border-radius: 20px;
   background: rgba(255,255,255,.18);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,.3);
 }
 .phone-dock a {
   display: flex; align-items: center; justify-content: center;
-  border-radius: 11px; color: #fff;
+  min-width: 46px; min-height: 46px;
+  border-radius: 13px; color: #fff;
   transition: transform .25s cubic-bezier(.22,1,.36,1);
 }
 .phone-dock a:active { transform: scale(.92); }
@@ -1161,35 +1388,191 @@
   font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .6;
 }
 
-/* app sheet */
+/* app sheet
+   Height comes from `dvh` and the top offset is a flat number rather than a
+   percentage: a percentage of a viewport that changes height as the browser
+   toolbar hides makes the sheet's top edge crawl while you scroll. */
 .sheet {
-  position: fixed; inset: 8% 0 0 0; z-index: 500;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 500;
+  top: calc(46px + env(safe-area-inset-top));
   background: var(--panel); color: var(--ink);
   border-radius: 18px 18px 0 0;
   display: flex; flex-direction: column;
   box-shadow: 0 -18px 60px rgba(0,0,0,.4);
   overflow: hidden;
+  /* `both` fill, so the sheet is guaranteed to end flush against its top stop
+     whether or not the frames in between are ever delivered — see mobile.tsx */
+  animation: sheet-in .42s cubic-bezier(.22,1,.36,1) both;
+  will-change: transform;
 }
+@keyframes sheet-in  { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes sheet-out { from { transform: none; } to { transform: translateY(100%); } }
+/* outranks the entrance rule on specificity, so it takes the transform over
+   even if the entrance is still running */
+.sheet.is-closing { animation: sheet-out .36s cubic-bezier(.22,1,.36,1) both; }
 .sheet-bar {
   position: relative; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  height: 52px; border-bottom: 1px solid var(--hair);
+  height: 54px; border-bottom: 1px solid var(--hair);
+  /* the bar is the drag handle, so the browser must not claim the gesture */
+  touch-action: none; cursor: grab;
+  user-select: none; -webkit-user-select: none;
 }
 .sheet-grip {
   position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
   width: 38px; height: 4px; border-radius: 2px; background: rgba(20,20,26,.18);
 }
-.sheet-title { font-size: 14px; font-weight: 600; margin-top: 6px; }
-.sheet-close {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(20,20,26,.06); color: var(--ink-soft);
+.sheet-title {
+  font-size: 14px; font-weight: 600; margin-top: 6px;
+  max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.sheet-body { flex: 1; min-height: 0; overflow: auto; }
-.sheet-body .finder { grid-template-columns: 1fr; }
-.sheet-body .finder-list { border-right: 0; border-bottom: 1px solid var(--hair); }
-.sheet-body .term { min-height: 60vh; }
+.sheet-close {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  touch-action: manipulation;
+}
+.sheet-close::before {
+  content: ""; position: absolute; inset: 6px;
+  border-radius: 50%; background: rgba(20,20,26,.06);
+}
+.sheet-close svg { position: relative; }
+.sheet-close:active::before { background: rgba(20,20,26,.14); }
+
+.sheet-body {
+  flex: 1; min-height: 0; overflow: auto;
+  /* a flick that runs past the end of the list must not drag the springboard
+     behind it, and it must not trigger the browser's pull-to-refresh */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* One scroller per sheet.
+   The apps are built as fixed-height panes with their own inner scroll area,
+   which on a phone stacks two 200px-tall scroll boxes inside one screen and
+   makes the content feel stuck. Inside a sheet the flow apps hand their scroll
+   back to the sheet body and simply grow. */
+.sheet-body .app { height: auto; min-height: 100%; }
+.sheet-body .finder { display: block; }
+.sheet-body .finder-list {
+  overflow: visible; border-right: 0; border-bottom: 1px solid var(--hair);
+}
+.sheet-body .finder-detail,
+.sheet-body .doc,
+.sheet-body .contact,
+.sheet-body .write-list,
+.sheet-body .shot-grid { overflow: visible; }
+.sheet-body .photos { overflow: visible; }
+.sheet-body .app > .finder,
+.sheet-body .app > .doc,
+.sheet-body .app > .contact,
+.sheet-body .app > .write-list,
+.sheet-body .shot-grid { flex: none; min-height: 0; }
+
+/* The apps that genuinely want the whole pane — a game board, a shell, a PDF
+   — keep it, and get the sheet's height rather than the page's. */
+.sheet-body .term,
+.sheet-body .merge,
+.sheet-body .pdf { height: 100%; min-height: 100%; }
+
+/* One picture at a time goes full-screen on a phone. Inside a sheet whose body
+   now scrolls, an absolutely-positioned viewer would stretch to the height of
+   the whole library instead of covering the screen. */
+.sheet-body .viewer {
+  position: fixed; inset: 0; z-index: 600;
+  padding: calc(20px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));
+}
+.sheet-body .viewer-nav { width: 44px; height: 64px; }
+.sheet-body .viewer-bar { padding-bottom: calc(11px + env(safe-area-inset-bottom)); }
+
+/* ── phone: the app interiors ──────────────
+   Everything below is the desktop layout re-proportioned for a hand. The
+   breakpoint matches useIsPhone(820), so the springboard and these rules
+   always turn on together. */
+@media (max-width: 820px) {
+  /* iOS zooms the whole page in when a focused field is under 16px, and then
+     leaves you zoomed. Every field the phone can reach is 16px. */
+  .search input,
+  .term-input input,
+  .spot-field input { font-size: 16px; }
+
+  /* the sheet bar already names the app, so the heading repeats it — keep it
+     as the page title but stop it eating a fifth of the screen */
+  .app-head { padding: 16px 18px 12px; }
+  .app-head h2 { font-size: 22px; }
+  .doc { padding: 16px 18px 24px; }
+  .contact { padding: 4px 18px 24px; }
+  .shot-grid { padding: 0 18px 20px; }
+  .proj-tools { padding: 0 18px 12px; }
+  .finder-detail { padding: 16px 18px 24px; }
+  .write-tags { padding: 0 18px 12px; }
+  .write-foot { padding: 14px 18px 20px; }
+
+  /* the date column stops being a column — at this width it would take a
+     third of the line and leave the title wrapping after three words */
+  .write-row {
+    grid-template-columns: 1fr;
+    gap: 7px; padding: 15px 18px;
+  }
+  .write-meta {
+    flex-direction: row; align-items: baseline; gap: 10px;
+    padding-top: 0; order: -1;
+  }
+  .write-go { display: none; }
+  .write-row:active { background: rgba(20,20,26,.06); }
+
+  /* a row is one column on a phone: the meta was competing with the title for
+     a 340px line and winning, which is why every project name was truncated */
+  .repo-row {
+    grid-template-columns: 1fr;
+    gap: 6px; padding: 13px 18px;
+  }
+  .repo-desc { white-space: normal; overflow: visible; }
+  .repo-meta { gap: 12px; flex-wrap: wrap; }
+  .repo-time { min-width: 0; text-align: left; }
+
+  /* full-width tiles rather than a 210px track that can only ever fit one */
+  .social-grid { grid-template-columns: 1fr; }
+  .social-go { opacity: .45; }
+  .shot-cap { opacity: 1; }
+  .tool-grid { grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); }
+  .doc-stats { gap: 18px; flex-wrap: wrap; }
+  .mail-card { gap: 12px; }
+  .mail-acts { flex: 1; }
+  .mail-acts .btn { flex: 1; justify-content: center; white-space: nowrap; }
+
+  /* the page takes the whole sheet — a 22px desk margin is a luxury at this
+     width — and the floating controls stay lit, since there is no hover to
+     bring them up */
+  .pdf-stage { padding: 10px; }
+  .pdf-acts { right: 12px; bottom: 12px; opacity: 1; }
+  .pdf-acts .btn { padding: 9px 14px; white-space: nowrap; }
+
+  /* the touch equivalents of the desktop's hover feedback */
+  .repo-row:active { background: rgba(20,20,26,.06); }
+  .social-card:active, .exp:active, .shot:active { transform: scale(.985); }
+  .btn:active { opacity: .82; }
+}
+
+/* Hover belongs to pointers. On a touch screen these states latch on after a
+   tap and stay lit until you tap elsewhere, which reads as a stuck highlight. */
+@media (hover: none) {
+  .repo-row:hover,
+  .write-row:hover,
+  .icon:hover { background: none; }
+  .write-row:hover .write-title { color: var(--ink); }
+  .social-card:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+  .social-card:hover::before { opacity: 0; }
+  .social-card:hover .social-art { transform: none; }
+  .social-card:hover .social-text strong { color: var(--ink); }
+  .shot:hover { transform: none; box-shadow: none; }
+  .shot:hover img { transform: none; }
+  .tool:hover .tool-art { transform: none; }
+  .swatch:hover { transform: none; }
+  .exp:hover { background: none; }
+}
 
 /* ── tablet / narrow desktop ───────────────── */
 @media (max-width: 1120px) {

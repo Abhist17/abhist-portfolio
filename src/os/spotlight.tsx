@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Command } from "cmdk";
-import { PROJECTS, SKILLS, SOCIALS, THEMES } from "./data";
+import { PROJECTS, SKILLS, SOCIALS, THEMES, WRITING } from "./data";
 import { APPS, useSystem } from "./system";
 import { AppIcon } from "./icons";
 import { COVER } from "./gallery";
@@ -101,6 +101,24 @@ export function Spotlight() {
                     </Command.Item>
                   ))}
                 </Command.Group>
+
+                {/* the written-down shelf, not the merged one — spotlight has
+                    no feed of its own and a search result that appears only
+                    after a network round-trip is worse than a stable one */}
+                {WRITING.length > 0 && (
+                  <Command.Group heading="Writing">
+                    {WRITING.map(p => (
+                      <Command.Item
+                        key={p.link}
+                        value={`writing post ${p.title} ${p.deck} ${p.tags.join(" ")}`}
+                        onSelect={() => run(() => window.open(p.link, "_blank", "noopener"))}>
+                        <span className="spot-dot" />
+                        <span>{p.title}</span>
+                        <span className="spot-tail">{p.read} min read</span>
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                )}
 
                 <Command.Group heading="Stack">
                   {Object.entries(SKILLS).map(([group, items]) =>

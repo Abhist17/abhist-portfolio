@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CONFIG } from "./config";
+import { WRITING, type Post } from "./data";
 
 /* ═════════════════════════════════════════════
    LIVE DATA
@@ -150,6 +151,104 @@ export function useCodeforces(): Result<CFStats> {
       return { rating: u.rating ?? null, rank: u.rank ?? null, maxRating: u.maxRating ?? null };
     },
   );
+}
+
+/* ── Medium ───────────────────────────────
+   Medium serves RSS, not JSON, and sends no
+   Access-Control-Allow-Origin — so unlike every
+   other endpoint here it cannot be read from the
+   browser directly. rss2json is a free keyless
+   relay that fetches the feed server-side and
+   answers with the header. It is the one third
+   party in this file, which is exactly why
+   WRITING in data.ts exists: this hook failing
+   costs the newest posts, never the app. */
+export function useMedium(): Result<Post[]> {
+  const handle = CONFIG.medium;
+  const feed = handle ? `https://medium.com/feed/@${handle}` : null;
+  return useJson<Post[]>(
+    `abhistos.medium.${handle}`,
+    feed ? `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}` : null,
+    6 * 60 * 60 * 1000,
+    (raw: never) => {
+      const r = raw as unknown as {
+        status: string;
+        items?: { title: string; link: string; pubDate: string; categories?: string[]; description?: string; content?: string }[];
+      };
+      /* rss2json answers 200 with status:"error" when the feed itself failed,
+         so an ok response is not on its own a successful read. */
+      if (r.status !== "ok" || !r.items?.length) throw new Error("feed");
+      return r.items.map(it => {
+        const raw = stripHtml(it.content || it.description || "");
+
+        /* Medium opens every RSS body with its own "Estimated read time: N
+           minutes" line. It is not prose — left in, it becomes the first thing
+           the deck says — but the number in it is Medium's own count, which
+           beats anything derived from a truncated feed body. */
+        const stamp = raw.match(/^Estimated read time:\s*(\d+)\s*minutes?\s*/i);
+        const body = stamp ? raw.slice(stamp[0].length) : raw;
+
+        return {
+          /* the ?source=rss-… suffix is tracking, and it is what would stop a
+             live post from matching its hand-written twin */
+          link: it.link.split("?")[0],
+          title: it.title.trim(),
+          deck: clip(body, 180),
+          date: new Date(it.pubDate.replace(" ", "T") + "Z").toISOString().slice(0, 10),
+          /* Medium's own estimate is ~265 words a minute */
+          read: stamp
+            ? Number(stamp[1])
+            : Math.max(1, Math.round(body.split(/\s+/).length / 265)),
+          tags: (it.categories ?? []).map(titleCase),
+        };
+      });
+    },
+  );
+}
+
+/** Feed HTML → the plain prose under it. DOMParser rather than a regex,
+    because the description is arbitrary markup and entities need decoding. */
+function stripHtml(html: string): string {
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("figure, figcaption, style, script").forEach(n => n.remove());
+    return (doc.body.textContent ?? "").replace(/\s+/g, " ").trim();
+  } catch { return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(); }
+}
+
+/** Cut to a whole word — a deck that ends "conversations fo…" reads as broken
+    rather than as abridged. */
+function clip(s: string, max: number): string {
+  const t = s.trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.–—-]+$/, "")}…`;
+}
+
+/* Medium's tags arrive lower-cased and hyphenated. Joining words stay down —
+   "India and Crypto", not "India And Crypto" — except as the first word. */
+const SMALL = new Set(["a", "an", "and", "as", "at", "but", "by", "for", "in", "of", "on", "or", "the", "to", "vs", "with"]);
+
+const titleCase = (s: string) =>
+  s.trim().split(/[\s-]+/)
+    .map((w, i) => (i > 0 && SMALL.has(w.toLowerCase())
+      ? w.toLowerCase()
+      : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ");
+
+/** The live feed under the written-down copy, not over it.
+    Anything in WRITING is authored — its deck is a real summary rather than
+    the first 180 characters of the body, its tags are spelled the way they
+    should read, and its read time is Medium's own. So a hand-written entry
+    wins outright on a link match, exactly as the curated projects win over
+    GitHub's one-liners; the feed's job is to carry the pieces that have not
+    been written down here yet. Newest first either way. */
+export function mergePosts(live: Post[] | null): Post[] {
+  const byLink = new Map<string, Post>();
+  for (const p of live ?? []) byLink.set(p.link.split("?")[0], p);
+  for (const p of WRITING) byLink.set(p.link.split("?")[0], p);
+  return [...byLink.values()].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 /* ── Repositories ─────────────────────────── */

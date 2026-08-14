@@ -77,6 +77,7 @@ const MENUS: { label: string; items: MenuItem[] }[] = [
   { label: "Go", items: [
     { label: "Search…", act: "search", hint: "⌘K" },
     { label: "About Me", app: "about" },
+    { label: "Writing", app: "writing" },
     { label: "Background", app: "background" },
     { label: "Stack", app: "stack" },
     { label: "Contact", app: "contact" },
